@@ -14,7 +14,7 @@ const HomePost = () => {
 
     // useEffect(() => {
     //     // Make API call to fetch all service posts
-    //     axios.get('http://192.168.100.22:5229/api/ServicePost') // Update with your actual API URL
+    //     axios.get('http://192.168.108.30:5229/api/ServicePost') // Update with your actual API URL
     //         .then((response) => {
     //             setServicePosts(response.data); // Store all posts
     //         })
@@ -27,8 +27,8 @@ const HomePost = () => {
 
 
 useEffect(() => {
-    const fetchServicePosts = axios.get('http://192.168.100.22:5140/api/ServicePost');
-    const fetchJobPosts = axios.get('http://192.168.100.22:5140/api/JobPost');
+    const fetchServicePosts = axios.get('http://192.168.108.30:5140/api/ServicePost');
+    const fetchJobPosts = axios.get('http://192.168.108.30:5140/api/JobPost');
 
     Promise.all([fetchServicePosts, fetchJobPosts])
         .then(([servicesResponse, jobsResponse]) => {

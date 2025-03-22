@@ -180,11 +180,14 @@ const handleApplyFilter = () => {
 useEffect(() => {
   const fetchPosts = async () => {
     try {
+      console.log('CATEGOTY ID:', categoryId); 
       const response = await axios.get<ApiResponse>(
-        `http://192.168.100.22:5140/api/Category/${categoryId}/posts`
+        `http://192.168.108.30:5140/api/Category/${categoryId}/posts`
       );
 
+      
       console.log('API Response:', response.data); // Debugging
+      
 
       // ✅ Extracting "$values" from "Jobs" and "Services"
     //  setJobs(response.data?.Jobs?.$values || []); 
@@ -411,7 +414,7 @@ return (
     <TouchableOpacity 
   key={job.id} 
   style={styles.postContainer} 
-  onPress={() => navigation.navigate('JobDetails', { job, type: job.type})} // 👈 Extra type parameter
+  onPress={() => navigation.navigate('JobDetails', { job, type:"Job"})} // 👈 Extra type parameter
 >
 
       {/* Job Header */}
@@ -489,7 +492,7 @@ return (
     <TouchableOpacity 
       key={service.id} 
       style={styles.postContainer} 
-      onPress={() => navigation.navigate('JobDetails', { service , type: service.type})} // 👈 Add this line
+      onPress={() => navigation.navigate('JobDetails', { service , type:"Service"})} // 👈 Add this line
     >
     {/* <View  style={styles.postContainer}> */}
                             {/* Same layout for jobs */}

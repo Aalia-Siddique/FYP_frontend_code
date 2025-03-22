@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   View,
   Text,
@@ -11,64 +12,162 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-
 import { StackNavigationProp } from '@react-navigation/stack';
+
+import * as ImagePicker from 'expo-image-picker';
 interface SignUpPageProps {
-  navigation: StackNavigationProp<any>; // Add the navigation prop type here
+  navigation: StackNavigationProp<any>;
 }
 
-const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
- 
-  const [selectedCity, setSelectedCity] = useState('');
-    const [formData, setFormData] = useState({
-      firstname: '',
-      lastname: '',
-      phoneNumber: '',
-      password: '',
-      confirmPassword: '',
-      address: '',
-      cnic: '',
-    });
-  const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+
+type City = {
+  id: number;
+  name: string;
+  status: string;
+  createdDate: string;
+  modifiedDate: string | null;
+};
+interface Job {
+  id: number;
+  name: string;
+  categoryImageName: string | null;
+  categoryJobs: number;
+  status: string;
+  createdDate: string;
+  categoryImage: string | null;
+}
+
+type FormDataProps = {
+  name: string;
+  phoneNumber: string;
+  password: string;
+  city:string;
+  cnic: string;
+  dateofbirth:string;
+  job: string;
+  selectedImage: string | null;
+  filename: string;
+  fileType: string;
+}
+const SignUp: React.FC<SignUpPageProps> = ({ navigation }) => {
+  const [manualDate, setManualDate] = useState<string>("");
+  const [error, setError] = useState<string>("");
+const [city, setCity] = useState<City[]>([]);
+const [jobs, setJobs] = useState<Job[]>([]);
+const [selectedJob, setSelectedJob] = useState('');
+
+const [isJobPickerVisible, setIsJobPickerVisible] = useState(false);
+
+const [selectedCity, setSelectedCity] = useState('');
+const [isPickerVisible, setIsPickerVisible] = useState(false);
+
+
+useEffect(() => {
+  GetCity();
+  GetJobs();
+}, []);
+
+useEffect(() => {
+  if (city.length > 0) {
+    setSelectedCity(city[0].name); // API se pehli city set karna
+    setFormData((prevState) => ({
+      ...prevState,
+      city: city[0].name, // formData me bhi update karna
+    }));
+  }
+}, [city]);
+
+useEffect(() => {
+  if (jobs.length > 0) {
+    setSelectedJob(jobs[0].name);
+    setFormData((prevState) => ({
+      ...prevState,
+      job: jobs[0].name,
+    }));
+  }
+}, [jobs]);
+  const [formData, setFormData] = useState<FormDataProps>({
+    name: '',
+    phoneNumber: '',
+    password: '',
+    city:'',
+    cnic: '',
+    dateofbirth:'',
+    job: '',
+    selectedImage: null,
+    filename: '',
+    fileType: '',
+
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const _pickImage = async (): Promise<void> => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const { uri } = result.assets[0]; // Extract the URI from the first asset
+        const filename = uri.split('/').pop() || '';
+        const match = /\.(\w+)$/.exec(filename);
+        const fileType = match ? `image/${match[1]}` : 'image';
+
+        setFormData((prevState) => ({
+          ...prevState, // Fix: Retains existing fields
+          selectedImage: uri,
+          filename,
+          fileType,
+        }));
+      } else {
+        Alert.alert('Cancelled', 'No image was selected.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not open image picker');
+    }
+  };
+  console.log(formData)
   const handleSignUp = async () => {
     if (
-      !formData.firstname ||
-      !formData.lastname ||
+      !formData.name ||
       !formData.phoneNumber ||
       !formData.password ||
-      !formData.confirmPassword ||
-      !formData.address ||
-      !formData.cnic
+      !formData.city ||
+      !formData.cnic ||
+      !formData.dateofbirth ||
+      !formData.job ||
+      !formData.selectedImage 
     ) {
       Alert.alert('Error', 'All fields are required.');
       return;
     }
   
-    if (formData.password !== formData.confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
-    }
-  
-    const dataToPost = {
-      FirstName: formData.firstname,
-      LastName: formData.lastname,
-      PhoneNumber: formData.phoneNumber,
-      Password: formData.password,
-      ConfirmPassword: formData.confirmPassword,
-      Address: formData.address,
-      Cnic: formData.cnic,
-    };
+    const dataToPost = new FormData();
+    dataToPost.append('Name', formData.name);
+    dataToPost.append('PhoneNumber', formData.phoneNumber);
+    dataToPost.append('Password', formData.password);
+    dataToPost.append('City', formData.city); 
+    dataToPost.append('Cnic', formData.cnic);
+    dataToPost.append('Job', formData.job);
+    dataToPost.append('DateofBirth', formData.dateofbirth);
+    dataToPost.append('UserImage', {
+      uri: formData.selectedImage,
+      name: formData.filename,
+      type: formData.fileType,
+    } as any);
   
     try {
-      console.log('Data to post:', JSON.stringify(dataToPost));
+      console.log('Data to post:', dataToPost);
   
-      const response = await fetch('http://192.168.36.30:5165/api/User/signup', {
+      const response = await fetch('http://192.168.108.30:5165/api/Auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToPost),
+        headers: {
+          "Accept": "application/json",
+        },
+        body: dataToPost,
       });
   
       console.log('Response status:', response.status);
@@ -79,41 +178,114 @@ const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
       const result = text ? JSON.parse(text) : null;
   
       if (response.ok && result) {
-        Alert.alert('Success', 'Account created successfully!');
-       
+        Alert.alert('Success', 'Account created successfully!', [
+          { text: 'OK', onPress: () => navigation.navigate('Login') } 
+        ]);
       } else {
         console.log('Error Details:', result);
-        throw new Error(result?.message || 'Failed to sign up.');
       }
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error:', error.message);
-        Alert.alert('Error', error.message);
-      } else {
-        Alert.alert('Error', 'An unexpected error occurred.');
-      }
+      console.error('Error:', error);
+      Alert.alert('Error', 'Something went wrong.');
     }
+  };
+  const GetCity = async () => {
+    try {
+      const response = await axios.get<City[]>(
+        'http://192.168.108.30:5165/api/City/GetAllCity'
+      );
+      console.log('API Response:', response.data);
+      setCity(response.data); // Correct way
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+    }
+  };
+  const GetJobs = async () => {
+    try {
+      const response = await axios.get<{ $values: Job[] }>('http://192.168.108.30:5140/api/Category/AllCategories');
+      setJobs(response.data.$values);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+    }
+  };
+
+
+
+  function validateAge(dateStr: string) {
+    const dateParts = dateStr.split("/");
+    if (dateParts.length === 3) {
+      const day = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1;
+      const year = parseInt(dateParts[2]);
+
+      const enteredDate = new Date(year, month, day);
+      if (!isNaN(enteredDate.getTime())) {
+        const today = new Date();
+        const age = today.getFullYear() - enteredDate.getFullYear();
+        const isBirthdayPassed =
+          today.getMonth() > enteredDate.getMonth() ||
+          (today.getMonth() === enteredDate.getMonth() && today.getDate() >= enteredDate.getDate());
+
+        const finalAge = isBirthdayPassed ? age : age - 1;
+
+        if (finalAge < 18) {
+          setError("User must be 18 years or older.");
+        } else {
+          setError("");
+        }
+      } else {
+        setError("Invalid date format.");
+      }
+    } else {
+      setError("Enter date in DD/MM/YYYY format.");
+    }
+  }
+
+  const handleManualDateChange = (text: string) => {
+    setManualDate(text);
+    validateAge(text);
+    setFormData((prevState) => ({
+      ...prevState,
+      dateofbirth: text, // Ensure date is updated in formData
+    }));
   };
   
 
-  const handleCitySelect = (city:string) => {
-    setSelectedCity(city);
-    setIsPickerVisible(false);
-  };
 
-  const handleInputChange = (field:string, value:string) => {
-    setFormData({ ...formData, [field]: value });
+  const handleCitySelect = (city: string) => {
+    setSelectedCity(city);
+    setFormData((prevState) => ({
+      ...prevState,
+      city: city, 
+    }));
   };
+  const handleJobSelect = (job: string) => {
+    setSelectedJob(job);
+    setFormData((prevState) => ({
+      ...prevState,
+      job: job,
+    }));
+  };
+  const handleInputChange = (field: string, value: string) => {
+   // console.log(`Field: ${field}, Value: ${value}`); // Debugging ke liye console log
+    setFormData((prevState) => ({
+      ...prevState,
+      [field]: value, 
+    }));
+  };
+  
+  
+
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
-      <Image 
-        source={require('../../Images/Designer1.png')} 
+      <Image
+        source={require('../../Images/Designer1.png')}
         style={styles.image}
       />
 
-      <Text style={styles.label}>First Name</Text>
+      <Text style={styles.label}>Full Name</Text>
       <View style={styles.inputContainer}>
         <Image
           source={require('../../assests/icons/user1.png')}
@@ -123,23 +295,8 @@ const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
           style={styles.input}
           placeholder="Enter your first name"
           placeholderTextColor="#aaa"
-          value={formData.firstname}
-          onChangeText={(value) => handleInputChange('firstname', value)}
-        />
-      </View>
-
-      <Text style={styles.label}>Last Name*</Text>
-      <View style={styles.inputContainer}>
-        <Image
-          source={require('../../assests/icons/user1.png')}
-          style={[styles.icon, { tintColor: '#00A86B' }]}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your last name"
-          placeholderTextColor="#aaa"
-          value={formData.lastname}
-          onChangeText={(value) => handleInputChange('lastname', value)}
+          value={formData.name}
+          onChangeText={(value) => handleInputChange('name', value)}
         />
       </View>
 
@@ -158,7 +315,6 @@ const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
           onChangeText={(value) => handleInputChange('phoneNumber', value)}
         />
       </View>
-
       <Text style={styles.label}>Password*</Text>
       <View style={styles.inputContainer}>
         <Image
@@ -185,79 +341,36 @@ const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.label}>Confirm Password*</Text>
-      <View style={styles.inputContainer}>
-        <Image
-          source={require('../../assests/icons/padlock.png')}
-          style={[styles.icon, { tintColor: '#00A86B' }]}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm your password"
-          placeholderTextColor="#aaa"
-          secureTextEntry={!showConfirmPassword}
-          value={formData.confirmPassword}
-          onChangeText={(value) => handleInputChange('confirmPassword', value)}
-        />
-        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-          <Image
-            source={
-              showConfirmPassword
-                ? require('../../assests/icons/hide.png')
-                : require('../../assests/icons/hide.png')
-            }
-            style={[styles.icon, { tintColor: '#00A86B' }]}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.label}>Address*</Text>
-      <View style={styles.inputContainer}>
-        <Image
-          source={require('../../assests/icons/maps-and-flags.png')}
-          style={[styles.icon, { tintColor: '#00A86B' }]}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your Address"
-          placeholderTextColor="#aaa"
-          value={formData.address}
-          onChangeText={(value) => handleInputChange('address', value)}
-        />
-      </View>
-
       <Text style={styles.label}>City</Text>
-      <TouchableOpacity
-        style={styles.inputContainer}
-        onPress={() => setIsPickerVisible(!isPickerVisible)}
-      >
-        <TextInput
-          style={styles.input}
-          placeholder="Select your city"
-          placeholderTextColor="#888"
-          value={selectedCity}
-          editable={false}
-        />
-        <Image
-          source={require('../../assests/icons/drop_down.png')}
-          style={styles.icon}
-        />
-      </TouchableOpacity>
+<TouchableOpacity
+  style={styles.inputContainer}
+  onPress={() => setIsPickerVisible(!isPickerVisible)}
+>
+  <TextInput
+    style={styles.input}
+    placeholder="Select your city"
+    placeholderTextColor="#888"
+    value={selectedCity} // Yeh ab API se pehli city set karega
+    editable={false}
+  />
+  <Image
+    source={require('../../assests/icons/drop_down.png')}
+    style={styles.icon}
+  />
+</TouchableOpacity>
 
-      {isPickerVisible && (
-        <Picker
-          selectedValue={selectedCity}
-          onValueChange={(itemValue) => handleCitySelect(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select your city" value="" />
-          <Picker.Item label="Karachi" value="Karachi" />
-          <Picker.Item label="Lahore" value="Lahore" />
-          <Picker.Item label="Islamabad" value="Islamabad" />
-          <Picker.Item label="Rawalpindi" value="Rawalpindi" />
-          <Picker.Item label="Faisalabad" value="Faisalabad" />
-        </Picker>
-      )}
+{isPickerVisible && (
+  <Picker
+    selectedValue={selectedCity}
+    onValueChange={(itemValue) => handleCitySelect(itemValue)}
+  >
+    {city.map((c) => (
+      <Picker.Item key={c.id} label={c.name} value={c.name} />
+    ))}
+  </Picker>
+)}
+
+   
 
       <Text style={styles.label}>CNIC*</Text>
       <View style={styles.inputContainer}>
@@ -273,12 +386,59 @@ const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
           onChangeText={(value) => handleInputChange('cnic', value)}
         />
       </View>
+      <Text style={styles.label}>Date of Birth</Text>
+      <View>
+        <TextInput
+          style={{
+            borderWidth: 1,
+            borderColor: error ? "red" : "gray",
+            padding: 8,
+            marginTop: 10,
+            borderRadius: 5,
+          }}
+          placeholder="DD/MM/YYYY"
+          value={formData.dateofbirth}
+          onChangeText={handleManualDateChange}
+          keyboardType="phone-pad"
+        />
+        {error ? <Text style={{ color: "red", marginTop: 5 }}>{error}</Text> : null}
+      </View>
 
+      <Text style={styles.label}>Job</Text>
+      <TouchableOpacity
+        style={styles.inputContainer}
+        onPress={() => setIsJobPickerVisible(!isJobPickerVisible)}
+      >
+        <TextInput
+          style={styles.input}
+          placeholder="Select your job"
+          placeholderTextColor="#888"
+          value={selectedJob}
+          editable={false}
+        />
+      </TouchableOpacity>
+      {isJobPickerVisible && (
+        <Picker selectedValue={selectedJob} onValueChange={handleJobSelect}>
+          {jobs.map((j) => (
+            <Picker.Item key={j.id} label={j.name} value={j.name} />
+          ))}
+        </Picker>
+      )}
+      <Text style={styles.label}>Your Profile Image</Text>
+            <TouchableOpacity style={styles.imagePicker} onPress={_pickImage}>
+              <Text style={styles.imagePickerText}>
+                {formData.selectedImage ? 'Change Image' : 'Pick an Image'}
+              </Text>
+            </TouchableOpacity>
+            {formData.selectedImage && (
+              <Image source={{ uri: formData.selectedImage }} style={styles.imagePreview} />
+            )}
+            
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-        Already have an account?{' '}
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.signUpText}>Login</Text>
+          Already have an account?{' '}
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.signUpText}>Login</Text>
           </TouchableOpacity>
         </Text>
       </View>
@@ -288,8 +448,25 @@ const SignUp : React.FC<SignUpPageProps> = ({navigation }) => {
     </ScrollView>
   );
 };
-
 const styles = StyleSheet.create({
+  imagePicker: {
+    backgroundColor: '#ddd',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  imagePickerText: {
+    color: '#555',
+    fontSize: 16,
+  },
+  imagePreview: {
+    marginTop: 10,
+    width: 100,
+    height: 100,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -321,15 +498,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
-    marginTop:5,
+    marginTop: 5,
   },
   image: {
     width: 150,
     height: 150,
     resizeMode: 'contain',
-    
-    marginLeft:70,
-    marginTop:10
+
+    marginLeft: 70,
+    marginTop: 10
   },
   label: {
     fontSize: 16,
@@ -345,7 +522,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
     paddingHorizontal: 10,
-    
+
   },
   icon: {
     width: 20,
@@ -357,19 +534,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginLeft: 10,
-    padding:10
+    padding: 10
   },
   eyeIcon: {
     padding: 5,
   },
   button: {
-    backgroundColor:  '#00A86B',
+    backgroundColor: '#00A86B',
     borderRadius: 8,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    margin:20,
-    marginBottom:40
+    margin: 20,
+    marginBottom: 40
   },
   buttonText: {
     color: '#fff',
@@ -390,14 +567,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#333',
   },
-  
+
   signUpText: {
     color: '#00A86B',
     fontWeight: 'bold',
   },
 });
-
-
 export default SignUp;
 
 

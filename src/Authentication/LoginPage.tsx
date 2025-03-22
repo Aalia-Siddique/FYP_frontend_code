@@ -1,14 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
-
+import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StackNavigationProp } from '@react-navigation/stack';
 interface LoginPageProps {
-  onLogin: () => void; // Function type with no arguments and no return value
+  onLogin: () => void; 
 }
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [formData, setFormData] = useState({
     phoneNumber: '',
     password: '',
   });
+
+  const [token, setToken] = useState<string | null>(null);
+type AuthStackParamList = {
+  Login: undefined;
+  SignUp: undefined; 
+  Drawer: undefined;
+};
+const checkLogin = async () => {
+  try {
+    const savedToken = await AsyncStorage.getItem('jwtToken');
+    if (!savedToken) {
+      console.error('JWT Token not found, please login.');
+      return;
+    }
+    setToken(savedToken);
+    fetchData(savedToken);
+  } catch (error) {
+    console.error('Error fetching token:', error);
+  }
+};
+useEffect(() => {
+  checkLogin();
+}, []);
+const fetchData = async (authToken: string) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/Users/GetUserData`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+   
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+const API_BASE_URL = 'http://192.168.108.30:5165/api';
+type NavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
+
+ 
   const [isPasswordVisible, setPasswordVisibility] = useState(false);
 
   const handleInputChange = (field:string, value:string) => {
@@ -25,34 +65,34 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       PhoneNumber: formData.phoneNumber,
       Password: formData.password,
     }
-
+  //  onLogin();
     try {
       console.log('Data to post:', JSON.stringify(dataToPost));
-      const response = await fetch('http://192.168.100.22:5165/api/Auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToPost),
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {  
+        PhoneNumber: formData.phoneNumber,
+        Password: formData.password,
       });
-
-      const result = await response.json();
+    //  const result = await response.json();
 
       console.log('Response status:', response.status);
-  
-
-  
-      if (response.ok) {
+      if (response.status === 200) {
+        const newToken = response.data.accessToken;
+        await AsyncStorage.setItem('jwtToken', newToken);
+        console.log(newToken); 
+        fetchData(newToken);
+      }
+      if (response.status === 200) {
         Alert.alert('Login Successful', 'Welcome back!');
         onLogin();
       } else {
-        Alert.alert('Login Failed', result.message || 'Something went wrong.');
+        Alert.alert('Login Failed Something went wrong.');
       }
     } catch (error) {
       Alert.alert('Error', 'Unable to connect to the server. Please try again later.');
       console.error('Login Error:', error);
     }
   };
+  const navigation = useNavigation<NavigationProp>();
 
   return (
     <View style={styles.container}>
@@ -105,9 +145,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
       <Text style={styles.footerText}>
         Don’t have an account?{' '}
-        {/* <TouchableOpacity onPress={() => navigation.navigate('SignUpPage')}>
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
           <Text style={styles.signUpText}>Sign Up</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </Text>
 
       <Text style={styles.orText}>or</Text>
@@ -119,6 +159,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         />
         <Text style={styles.googleButtonText}>Continue with Google</Text>
       </TouchableOpacity>
+      
     </View>
   );
 };

@@ -87,14 +87,14 @@ if (!phoneRegex.test(phoneNumber)) {
     
         try {
             console.log("Sending request..."); // Log to check if it's reaching here
-            const response = await fetch('http://192.168.100.22:5140/api/ServicePost', {
+            const response = await fetch('http://192.168.108.30:5140/api/ServicePost', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData),
             });
-            // Log the response status
+            // Log the response statusnp
             console.log('Response Status:', response.status);
             if (response.ok) {
         Alert.alert("Success", "Service posted successfully!");

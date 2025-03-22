@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'; // Import SafeAreaView
 import Headers from '../components/Header';
 import HomePost from '../components/HomePost';
+import NotificationBell from './NotificationBelll';
 
 const ElevatedCards = () => {
   return (
@@ -72,7 +73,9 @@ const ElevatedCards = () => {
           />
           <Text style={styles.horitext}>Naemm ul Haq</Text>
         </View>
+        
       </ScrollView>
+      <NotificationBell/>
     </View>
   );
 };

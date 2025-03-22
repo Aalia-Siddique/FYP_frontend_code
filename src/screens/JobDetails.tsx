@@ -1,8 +1,14 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity,Alert} from 'react-native';
+import React,{useState} from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity,Alert,Modal} from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Ensure you have this installed
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+import { jwtDecode } from "jwt-decode";
+
+import Icon from 'react-native-vector-icons/FontAwesome';
 interface Job {
   id: number;
   name: string;
@@ -32,7 +38,7 @@ type JobDetailsRouteProp = RouteProp<{
   
   const JobDetails: React.FC<JobDetailsProps> = ({ route }) => {
       const navigation = useNavigation();
-      
+      const [successModal, setSuccessModal] = useState(false);
       // Fix: Now `service` is part of the type
       const job = route.params?.job || route.params?.service;
       
@@ -44,9 +50,9 @@ type JobDetailsRouteProp = RouteProp<{
 
 
 
-    const type = route.params?.type ?? 'Job'; // Default 'job' if not provided
+    const type = route.params?.type ?? 'Job'; 
     const skillsArray = job?.skills?.$values ?? [];
-    const isService = type === 'Service'; // ✅ Correct check
+    const isService = type === 'Service'; 
   
     if (!job) {
       return (
@@ -57,14 +63,21 @@ type JobDetailsRouteProp = RouteProp<{
     }
    
     const handleApplyJob = async () => {
+      const token = await AsyncStorage.getItem('jwtToken');
+      if (!token) {
+        console.error('User token not found.');
+        return;
+      }
+      const decodedToken: any = jwtDecode(token);
+      const userId = decodedToken.Id;
       const endpoint = isService 
-          ? 'http://192.168.100.22:5140/api/UserJob/CreateUserService'
-          : 'http://192.168.100.22:5140/api/UserJob/CreateUserjob';
+          ? 'http://192.168.108.30:5140/api/UserJob/CreateUserService'
+          : 'http://192.168.108.30:5140/api/UserJob/CreateUserjob';
   
-      // Dynamically set request body
+      
       const requestBody = isService 
-          ? JSON.stringify({ serviceId: job.id })  // Service case
-          : JSON.stringify({ jobId: job.id });    // Job case
+          ? JSON.stringify({ serviceId: job.id,userId})  // Service case
+          : JSON.stringify({ jobId: job.id,userId });    // Job case
   
       console.log('Sending request to:', endpoint);
       console.log('Request Body:', requestBody);
@@ -84,8 +97,8 @@ type JobDetailsRouteProp = RouteProp<{
   
           const responseData = await response.json();
           console.log('Response Data:', responseData);
-  
-          alert(`You applied for the ${isService ? 'service' : 'job'} successfully!`);
+          setSuccessModal(true); 
+         // alert(`You applied for the ${isService ? 'service' : 'job'} successfully!`);
       } catch (error) {
           console.error(`Error applying for ${isService ? 'service' : 'job'}:`, error);
           alert(`Failed to apply for ${isService ? 'service' : 'job'}. Error: ${error.message}`);
@@ -156,6 +169,23 @@ type JobDetailsRouteProp = RouteProp<{
         <TouchableOpacity style={styles.applyButton} onPress={handleApplyJob}>
           <Text style={styles.applyButtonText}>Apply for {isService ? 'Service' : 'Job'}</Text>
         </TouchableOpacity>
+        <Modal visible={successModal} transparent animationType="fade">
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Icon name="check-circle" size={50} color="green" />
+            <Text style={styles.congratsText}>Congratulations!</Text>
+            <Text style={styles.successText}>
+              You successfully applied for the {isService ? 'service' : 'job'}.
+            </Text>
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setSuccessModal(false)}
+            >
+              <Text style={styles.okButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       </ScrollView>
     );
   };
@@ -276,7 +306,43 @@ const styles = StyleSheet.create({
     color: '#555',
     marginTop: 5,
   },
-  
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: 300,
+  },
+  congratsText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginTop: 10,
+  },
+  successText: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  okButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  okButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   
 });
 

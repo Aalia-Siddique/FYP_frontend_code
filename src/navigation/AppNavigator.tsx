@@ -7,7 +7,7 @@ import LoginPage from '../Authentication/LoginPage';
 import Tab from './Tab';
 import AllApplications from '../components/AllApplications';
 import CategoryForm from '../components/CategoryForm';
-import Notifications from '../components/notifications';
+//import Notifications from '../components/notifications';
 import PostService from '../screens/PostService';
 import PostJob from '../screens/PostJob';
 import CategoryDetails from '../screens/CategoryDetails';
@@ -15,6 +15,10 @@ import JobDetails from '../screens/JobDetails';
 import ApplicantsScreen from '../screens/ApplicantsScreen';
 import UserProfileScreen from '../screens/UserProfile';
 import UpdateProfile from '../screens/UpdateProfile';
+import AppliedJobsScreen from '../screens/AppliedJobs';
+import FeedbackScreen from '../screens/FeedbackScreen';
+import AppliedServicesScreen from '../screens/AppliedServices';
+import NotificationList from '../screens/notificationsPage';
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
@@ -32,7 +36,7 @@ const AppNavigator = () => {
     {() => (
       <Drawer.Navigator>
         <Drawer.Screen name="HomeTabs" component={Tab} />
-        <Drawer.Screen name="Notifications" component={Notifications} />
+       {/* // <Drawer.Screen name="Notifications" component={Notifications} /> */}
         <Drawer.Screen name="CategoryForm" component={CategoryForm} />
         <Drawer.Screen name="Singup" component={SignUpPage} />
         <Drawer.Screen name="PostJob" component={PostJob} /> 
@@ -41,9 +45,14 @@ const AppNavigator = () => {
         <Drawer.Screen name="JobDetails" component={JobDetails} /> 
         <Drawer.Screen name="UserProfile" component={UserProfileScreen} /> 
          <Drawer.Screen name="UpdateProfile" component={UpdateProfile} /> 
+         <Drawer.Screen name="FeedbackScreen" component={FeedbackScreen} /> 
         <Drawer.Screen name="ApplicantsScreen" component={ApplicantsScreen} 
         
         /> 
+         <Drawer.Screen name="AppliedJobs" component={AppliedJobsScreen} />
+         <Drawer.Screen name="notificationsPage" component={NotificationList} />
+         <Drawer.Screen name="AppliedServices" component={AppliedServicesScreen}/>
+
       {/* //  <Drawer.Screen name="UpdateProfile " component={UpdateProfile} />  */}
         
       
