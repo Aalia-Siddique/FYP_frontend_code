@@ -28,7 +28,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
     try {
       console.log('Data to post:', JSON.stringify(dataToPost));
-      const response = await fetch('http://192.168.100.22:5165/api/Auth/login', {
+      const response = await fetch('http://192.168.0.101:5165/api/Auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

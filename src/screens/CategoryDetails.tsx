@@ -181,7 +181,7 @@ useEffect(() => {
   const fetchPosts = async () => {
     try {
       const response = await axios.get<ApiResponse>(
-        `http://192.168.100.22:5140/api/Category/${categoryId}/posts`
+        `http://192.168.0.101:5140/api/Category/${categoryId}/posts`
       );
 
       console.log('API Response:', response.data); // Debugging

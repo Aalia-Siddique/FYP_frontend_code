@@ -37,7 +37,7 @@ const MyJobsScreen: React.FC = () => {
 
     const fetchJobsAndServices = async () => {
         try {
-            const response = await fetch("http://192.168.100.22:5140/api/Category/GetAllJobsAndServices");
+            const response = await fetch("http://192.168.0.101:5140/api/Category/GetAllJobsAndServices");
             const result = await response.json();
 
             console.log("API Response:", result); // DebuggingY

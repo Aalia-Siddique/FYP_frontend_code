@@ -40,9 +40,9 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
       // API URL ko job ya service type k mutabiq set karna
       let apiUrl = "";
       if (jobType.toLowerCase() === "job") {
-        apiUrl = `http://192.168.100.22:5140/api/UserJob/GetApplicantsByJob/${jobId}`;
+        apiUrl = `http://192.168.0.101:5140/api/UserJob/GetApplicantsByJob/${jobId}`;
       } else if (jobType.toLowerCase() === "service") {
-        apiUrl = `http://192.168.100.22:5140/api/UserJob/GetApplicantsByService/${jobId}`;
+        apiUrl = `http://192.168.0.101:5140/api/UserJob/GetApplicantsByService/${jobId}`;
       } else {
         console.error("Invalid job type:", jobType);
         setApplicants([]);
@@ -83,7 +83,7 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
               <Image
                 source={{ 
                   uri: item.userImage 
-                    ? `http://192.168.100.22:5165/${item.userImage}` 
+                    ? `http://192.168.0.101:5165/${item.userImage}` 
                     : Image.resolveAssetSource(defaultImage).uri
                 }} 
                 style={styles.userImage}

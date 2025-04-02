@@ -11,7 +11,7 @@ const UserProfileScreen = ({ route }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`http://192.168.100.22:5165/api/Users/GetUsersById/${userId}`);
+      const response = await fetch(`http://192.168.0.101:5165/api/Users/GetUsersById/${userId}`);
       if (!response.ok) throw new Error(`Error: ${response.status}`);
 
       const result = await response.json();
@@ -29,7 +29,7 @@ const UserProfileScreen = ({ route }) => {
     <ScrollView contentContainerStyle={styles.container}>
       {/* Profile Image & Name */}
       <View style={styles.profileHeader}>
-        <Image source={{ uri: `http://192.168.100.22:5165/${user.userImageName}` }} style={styles.userImage} />
+        <Image source={{ uri: `http://192.168.0.101:5165/${user.userImageName}` }} style={styles.userImage} />
         <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.job}>{user.job}</Text>
         <Text style={styles.city}>{user.city}</Text>
@@ -48,18 +48,18 @@ const UserProfileScreen = ({ route }) => {
       {/* CNIC Section */}
       <View style={styles.detailsContainer}>
         <Text style={styles.sectionTitle1}>CNIC Image</Text>
-        <Image source={{ uri: `http://192.168.100.22:5165/${user.cnicImageName}` }} style={styles.extraImage1} />
+        <Image source={{ uri: `http://192.168.0.101:5165/${user.cnicImageName}` }} style={styles.extraImage1} />
       </View>
 
       {/* Certificate Section */}
       <View style={styles.detailsContainer}>
         <Text style={styles.sectionTitle}>Liscense and Certificate</Text>
-        <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.100.22:5165/${user.certificateImageName}`)}>
-          <Image source={{ uri: `http://192.168.100.22:5165/${user.certificateImageName}` }} style={styles.extraImage} />
+        <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.0.101:5165/${user.certificateImageName}`)}>
+          <Image source={{ uri: `http://192.168.0.101:5165/${user.certificateImageName}` }} style={styles.extraImage} />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.downloadButton} 
-          onPress={() => Linking.openURL(`http://192.168.100.22:5165/${user.certificateImageName}`)}
+          onPress={() => Linking.openURL(`http://192.168.0.101:5165/${user.certificateImageName}`)}
         >
           <Text style={styles.downloadButtonText}>Download Certificate</Text>
         </TouchableOpacity>

@@ -290,7 +290,7 @@ const removeSection = (section: Section) => {
       // Check if data is serializable
       console.log('Serialized Data:', JSON.stringify(jobData));
   
-      const response = await fetch('http://192.168.100.22:5140/api/JobPost', {
+      const response = await fetch('http://192.168.0.101:5140/api/JobPost', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

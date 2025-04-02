@@ -58,8 +58,8 @@ type JobDetailsRouteProp = RouteProp<{
    
     const handleApplyJob = async () => {
       const endpoint = isService 
-          ? 'http://192.168.100.22:5140/api/UserJob/CreateUserService'
-          : 'http://192.168.100.22:5140/api/UserJob/CreateUserjob';
+          ? 'http://192.168.0.101:5140/api/UserJob/CreateUserService'
+          : 'http://192.168.0.101:5140/api/UserJob/CreateUserjob';
   
       // Dynamically set request body
       const requestBody = isService 

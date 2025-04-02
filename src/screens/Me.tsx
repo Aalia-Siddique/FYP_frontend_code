@@ -11,7 +11,7 @@ type RootStackParamList = {
 
 type MeScreenProp = StackScreenProps<RootStackParamList, 'Me'>;
 
-const API_BASE_URL = 'http://192.168.100.22:5165/api';
+const API_BASE_URL = 'http://192.168.0.101:5165/api';
 
 const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
   const { userData } = route.params || { userData: {} };
@@ -123,7 +123,7 @@ const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
        key === "UserImageName" && data.UserImageName ? (
         <View  style={styles.profileHeader}>
           <Image
-            source={{ uri: `http://192.168.100.22:5165/${data.UserImageName}` } } 
+            source={{ uri: `http://192.168.0.101:5165/${data.UserImageName}` } } 
             style={styles.profileImage}
           />
          </View>
@@ -131,13 +131,13 @@ const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
     ) :
     key === "CertificateImageName" && data.CertificateImageName ? (
       <Image
-        source={{ uri: `http://192.168.100.22:5165/${data.CertificateImageName}` }}
+        source={{ uri: `http://192.168.0.101:5165/${data.CertificateImageName}` }}
         style={styles.image}
       />
     ) :
      key === "CnicImageName" && data.CnicImageName ? (
       <Image
-        source={{ uri: `http://192.168.100.22:5165/${data.CnicImageName}` }}
+        source={{ uri: `http://192.168.0.101:5165/${data.CnicImageName}` }}
         style={styles.image}
       />
     ) : (
