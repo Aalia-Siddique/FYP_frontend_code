@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState,useEffect } from 'react'; 
 import {
     View,
     Text,
@@ -6,9 +6,13 @@ import {
     TouchableOpacity,
     TextInput,
     ScrollView,
-    Alert
+    Alert,ActivityIndicator
 } from "react-native";
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+import { jwtDecode } from "jwt-decode";
 
 const PostService = () => {
     const [selectedLocation, setSelectedLocation] = useState('');
@@ -24,8 +28,48 @@ const PostService = () => {
     const [estimatedBudget, setEstimatedBudget] = useState('');
     const [experience, setExperience] = useState('');
     const [email, setEmail] = useState(''); // Added email state
+     const [categories, setCategories] = useState([]);
+     const [cities, setCities] = useState([]);  // Cities state
+     const [loading, setLoading] = useState(true);
+     // const [selectedType, setSelectedType = useState('');
+       const [selectedCategory, setSelectedCategory] = useState('');
+    useEffect(() => {
+      fetch("http://192.168.100.22:5165/api/City/GetAllCity")  // ✅ Backend API Call
+        .then((response) => response.json())
+        .then((data) => {
+          setCities(data);  // ✅ Set cities from backend
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching cities:", error);
+          setLoading(false);
+        });
+    }, [])
+    useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const response = await fetch('http://192.168.100.22:5140/api/Category/AllCategories');
+          const data = await response.json();
+          
+          setCategories(data.$values); // ✅ Actual array ko set karein
+    
+        } catch (error) {
+          console.error('Error fetching categories:', error);
+        }
+      };
+    
+      fetchCategories();
+    }, []);
+    
 
     const handleSubmit = async () => {
+        const token = await AsyncStorage.getItem('jwtToken');
+      if (!token) {
+        console.error('User token not found.');
+        return;
+      }
+       const decodedToken: any = jwtDecode(token);
+            const userId = decodedToken.Id;
         console.log('Submit button clicked'); // Ensure the function is triggered
         let formattedPreferredDate = '';
     if (preferredDate) {
@@ -69,7 +113,7 @@ if (!phoneRegex.test(phoneNumber)) {
             Address: homeAddress,
             PhoneNumber: phoneNumber,
             Email: email,
-            UserId:"1",
+            UserId:userId ,
             Experience: experience ,// Convert experience to integer
             PreferredDate: preferredDate,
             Timing: preferredTime,
@@ -87,7 +131,7 @@ if (!phoneRegex.test(phoneNumber)) {
     
         try {
             console.log("Sending request..."); // Log to check if it's reaching here
-            const response = await fetch('http://192.168.108.30:5140/api/ServicePost', {
+            const response = await fetch('http://192.168.100.22:5140/api/ServicePost', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,6 +171,19 @@ if (!phoneRegex.test(phoneNumber)) {
             </View>
 
             <View style={styles.inputGroup}>
+                <Text style={styles.label}>Service Category*</Text>
+                      <View style={styles.pickerContainer}>
+                        <Picker
+                          selectedValue={selectedCategory}
+                          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                          style={styles.pickerStyle}
+                        >
+                          <Picker.Item label="Select Category" value="" />
+                          {categories.map((category) => (
+                            <Picker.Item key={category.id} label={category.name} value={category.id} />
+                          ))}
+                        </Picker>
+                      </View>
                 <Text style={styles.label}>Service Name*</Text>
                 <TextInput
                     placeholder="Enter service name"
@@ -137,20 +194,22 @@ if (!phoneRegex.test(phoneNumber)) {
                 />
 
                 <Text style={styles.label}>Service Location*</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={selectedLocation}
-                        onValueChange={(itemValue) => setSelectedLocation(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="Select a location" value="" />
-                        <Picker.Item label="New Delhi" value="new_delhi" />
-                        <Picker.Item label="Mumbai" value="mumbai" />
-                        <Picker.Item label="Bangalore" value="bangalore" />
-                        <Picker.Item label="Chennai" value="chennai" />
-                        <Picker.Item label="Kolkata" value="kolkata" />
-                    </Picker>
-                </View>
+                          <View style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 5 }}>
+                        {loading ? (
+                          <ActivityIndicator size="small" color="#0000ff" />
+                        ) : (
+                          <Picker
+                            selectedValue={selectedLocation}
+                            onValueChange={(itemValue) => setSelectedLocation(itemValue)}
+                            style={{ fontSize: 15, color: "#000" }}
+                          >
+                            <Picker.Item label="Select a location" value="" />
+                            {cities.map((city) => (
+                              <Picker.Item key={city.id} label={city.name} value={city.name} />
+                            ))}
+                          </Picker>
+                        )}
+                      </View>
 
                 <Text style={styles.label}>Home Address*</Text>
                 <TextInput
@@ -323,6 +382,10 @@ const styles = StyleSheet.create({
         color: 'white',
         flex: 1,
         fontSize: 15,
+      },
+      pickerStyle: {
+        height: 52,
+        fontSize:10
       },
 });
 

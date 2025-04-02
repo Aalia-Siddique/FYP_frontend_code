@@ -38,7 +38,7 @@ const NotificationBell = () => {
   const fetchUnreadCount = async () => {
     try {
       const response = await fetch(
-        `http://192.168.108.30:5074/api/Notifications/GetUnreadCount/${userId}`
+        `http://192.168.100.22:5074/api/Notifications/GetUnreadCount/${userId}`
       );
       const count = await response.json();
       setUnreadCount(count);
@@ -50,7 +50,7 @@ const NotificationBell = () => {
   const markNotificationsAsRead = async () => {
     try {
       await fetch(
-        `http://192.168.108.30:5074/api/Notifications/MarkAsRead/${userId}`,
+        `http://192.168.100.22:5074/api/Notifications/MarkAsRead/${userId}`,
         { method: "POST" }
       );
       setUnreadCount(0);

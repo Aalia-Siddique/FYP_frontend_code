@@ -177,9 +177,14 @@ import {
     Modal,
     Button,
     ScrollView,
+    ActivityIndicator
   } from "react-native";
-import { Picker } from '@react-native-picker/picker';
+import { Picker, } from '@react-native-picker/picker';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+import { jwtDecode } from "jwt-decode";
 
 interface Section {
   id: number;
@@ -189,6 +194,13 @@ interface Section {
 
 
 const PostJob = () => {
+  const [categories, setCategories] = useState([]);
+ // const [selectedType, setSelectedType = useState('');
+   const [selectedCategory, setSelectedCategory] = useState('');
+
+  // const [selectedCategory, setSelectedCategory] = useState('');
+
+  
   const [selectedOption, setSelectedOption] = useState('');
 const [JobTitle, setJobTitle] = useState('');
 const [JobTimings, setJobTimings] = useState('');
@@ -210,6 +222,37 @@ const [JobTimings, setJobTimings] = useState('');
  const [CompanyAddress, setCompanyAddress] = useState('');
 const [selectedJobType, setSelectedJobType] = useState('');
 const [selectedWorkplaceType, setSelectedWorkplaceType] = useState('');
+const [selectedType, setSelectedType] = useState('');
+const [selectedStatus, setSelectedStatus] = useState('');
+const [cities, setCities] = useState([]);  // Cities state
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  fetch("http://192.168.100.22:5165/api/City/GetAllCity")  // ✅ Backend API Call
+    .then((response) => response.json())
+    .then((data) => {
+      setCities(data);  // ✅ Set cities from backend
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("Error fetching cities:", error);
+      setLoading(false);
+    });
+}, [])
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('http://192.168.100.22:5140/api/Category/AllCategories');
+      const data = await response.json();
+      
+      setCategories(data.$values); // ✅ Actual array ko set karein
+
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  fetchCategories();
+}, []);
 
 // const validatePhoneNumber = (text) => {
 //   const phoneRegex = /^\+92[3-9]\d{8}$/; // +92 followed by 3-9 and 8 digits
@@ -235,6 +278,13 @@ const removeSection = (section: Section) => {
 };
 
   const handleSubmit = async () => {
+    const token = await AsyncStorage.getItem('jwtToken');
+      if (!token) {
+        console.error('User token not found.');
+        return;
+      }
+       const decodedToken: any = jwtDecode(token);
+            const userId = decodedToken.Id;
     console.log('Submit button clicked');
 
     const skillsArray = skills ? skills.split(',').map(skill => skill.trim()) : [];
@@ -271,7 +321,9 @@ const removeSection = (section: Section) => {
     const jobData = {
       Name: JobTitle || '',
       Timing: JobTimings || '',
-      UserId:"1",
+      UserId:userId,
+      Type:"Job",
+      Status:"Active",
       Location: selectedLocation || '',
       Experience: experienceValue,
       MinSalary: parseFloat(Salary) || 0,
@@ -284,13 +336,15 @@ const removeSection = (section: Section) => {
       Address: CompanyAddress || '',
       JobType: selectedJobType || '',
       WorkplaceType: selectedWorkplaceType || '',
+      CategoryId: selectedCategory || '',
+
     };
     
     try {
       // Check if data is serializable
       console.log('Serialized Data:', JSON.stringify(jobData));
   
-      const response = await fetch('http://192.168.108.30:5140/api/JobPost', {
+      const response = await fetch('http://192.168.100.22:5140/api/JobPost', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -314,6 +368,7 @@ const removeSection = (section: Section) => {
         setCompanyAddress('');
         setSelectedJobType('');
         setSelectedWorkplaceType('');
+        setSelectedCategory('');
       } else {
         const errorResponse = await response.json();
         console.error('Error details:', errorResponse);
@@ -357,6 +412,19 @@ const removeSection = (section: Section) => {
       <View>
         <Text style={[style.sectionTitle,{margin:10}]}>Basic Job Details</Text>
         <View style={style.inputHeader}>
+        <Text style={style.label}>Job Category*</Text>
+      <View style={style.pickerContainer}>
+        <Picker
+          selectedValue={selectedCategory}
+          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          style={style.pickerStyle}
+        >
+          <Picker.Item label="Select Category" value="" />
+          {categories.map((category) => (
+            <Picker.Item key={category.id} label={category.name} value={category.id} />
+          ))}
+        </Picker>
+      </View>
           <Text style={style.label}>Job Title*</Text>
           <TextInput placeholder="Enter your job title" 
           value={JobTitle}
@@ -364,20 +432,22 @@ const removeSection = (section: Section) => {
           style={style.textInput} />
 
           <Text style={style.label}>Job Location*</Text>
-          <View style={style.pickerContainer}>
-            <Picker
-              selectedValue={selectedLocation}
-              onValueChange={(itemValue) => setSelectedLocation(itemValue)}
-              style={style.pickerStyle}
-            >
-              <Picker.Item style={{fontSize:15,color:'#a9a9a9' }} label="Select a location" value="" />
-              <Picker.Item label="New Delhi" value="new_delhi" />
-              <Picker.Item label="Mumbai" value="mumbai" />
-              <Picker.Item label="Bangalore" value="bangalore" />
-              <Picker.Item label="Chennai" value="chennai" />
-              <Picker.Item label="Kolkata" value="kolkata" />
-            </Picker>
-          </View>
+          <View style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 5 }}>
+        {loading ? (
+          <ActivityIndicator size="small" color="#0000ff" />
+        ) : (
+          <Picker
+            selectedValue={selectedLocation}
+            onValueChange={(itemValue) => setSelectedLocation(itemValue)}
+            style={{ fontSize: 15, color: "#000" }}
+          >
+            <Picker.Item label="Select a location" value="" />
+            {cities.map((city) => (
+              <Picker.Item key={city.id} label={city.name} value={city.name} />
+            ))}
+          </Picker>
+        )}
+      </View>
           <Text style={style.label}>Job Type*</Text>
     <View style={style.pickerContainer}>
       <Picker
@@ -386,8 +456,8 @@ const removeSection = (section: Section) => {
         style={style.pickerStyle}
       >
         <Picker.Item style={{fontSize:15,color:'#a9a9a9',height:30 }} label="Select job type" value="" />
-        <Picker.Item label="Part-time" value="part_time" />
-        <Picker.Item label="Full-time" value="full_time" />
+        <Picker.Item label="Part-time" value="Part-time" />
+        <Picker.Item label="Full-time" value="Full-time" />
         <Picker.Item label="Internship" value="internship" />
         <Picker.Item label="Contract" value="contract" />
       </Picker>
@@ -402,7 +472,7 @@ const removeSection = (section: Section) => {
         <Picker.Item label="Select workplace type" style={{fontSize:15,color:'#a9a9a9' }} value="" />
         <Picker.Item label="Hybrid" value="hybrid" />
         <Picker.Item label="Remote" value="remote" />
-        <Picker.Item label="On-site" value="on_site" />
+        <Picker.Item label="On-site" value="on-site" />
       </Picker>
     </View>
   
@@ -550,7 +620,7 @@ const removeSection = (section: Section) => {
         <TextInput
           style={[style.input, phoneError ? style.errorBorder : null]}
           placeholder="+92"
-          keyboardType="number-pad"
+          keyboardType="phone-pad" 
           value={phoneNumber}
           onChangeText={setPhoneNumber}
         />

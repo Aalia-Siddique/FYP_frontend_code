@@ -14,7 +14,7 @@ const HomePost = () => {
 
     // useEffect(() => {
     //     // Make API call to fetch all service posts
-    //     axios.get('http://192.168.108.30:5229/api/ServicePost') // Update with your actual API URL
+    //     axios.get('http://192.168.100.22:5229/api/ServicePost') // Update with your actual API URL
     //         .then((response) => {
     //             setServicePosts(response.data); // Store all posts
     //         })
@@ -27,8 +27,8 @@ const HomePost = () => {
 
 
 useEffect(() => {
-    const fetchServicePosts = axios.get('http://192.168.108.30:5140/api/ServicePost');
-    const fetchJobPosts = axios.get('http://192.168.108.30:5140/api/JobPost');
+    const fetchServicePosts = axios.get('http://192.168.100.22:5140/api/ServicePost');
+    const fetchJobPosts = axios.get('http://192.168.100.22:5140/api/JobPost');
 
     Promise.all([fetchServicePosts, fetchJobPosts])
         .then(([servicesResponse, jobsResponse]) => {
@@ -63,11 +63,11 @@ useEffect(() => {
                     <View key={`service-${index}`} style={styles.postContainer}>
                         {/* Same layout for services */}
                         <View style={styles.header}>
-                            <Image
-                                source={imageMap[servicePost.imageName] || require('../../Images/Homeimages/m1.jpeg')}
-                                resizeMode="cover"
-                                style={styles.Postimage}
-                            />
+                        <Image
+                       source={{ uri: `http://192.168.100.22:5165/${servicePost.userImage}` }}
+                         resizeMode="cover"
+                          style={styles.Postimage}
+                          />
                             <View style={styles.jobtitleDifference}>
                                 <Text style={styles.Jobtitle}>{servicePost.name}</Text>
                                 <View style={styles.circle1}>
@@ -138,11 +138,12 @@ useEffect(() => {
                         {/* Same layout for jobs */}
                         <View style={styles.header}>
                        
-                            <Image
-                                source={imageMap[jobPost.imageName] || require('../../Images/Homeimages/m1.jpeg')}
-                                resizeMode="cover"
-                                style={styles.Postimage}
-                            />
+                           {/* Image component */}
+                      <Image
+                       source={{ uri: `http://192.168.100.22:5165/${jobPost.userImage}` }}
+                         resizeMode="cover"
+                          style={styles.Postimage}
+                          />
                             <View style={styles.jobtitleDifference}>
                                 <Text style={styles.Jobtitle}>{jobPost.name}</Text>
                                 <View style={styles.circle1}>
@@ -162,7 +163,7 @@ useEffect(() => {
                             <Text style={[styles.footerText, { fontWeight: 'bold', fontSize: 12, color: 'red' }]}>{jobPost.address}</Text>
                         </View>
                         <View style={styles.location1}>
-                        <Text style={styles.footerText}>Posted on:</Text>
+                        <Text style={styles.footerText}></Text>
                             <Image
                                 source={require('../../assests/icons/clock.png')}
                                 resizeMode="contain"

@@ -51,7 +51,7 @@ const AppliedJobsScreen = () => {
   const fetchAppliedJobs = async (userId: string) => {
     try {
       console.log("Fetching Applied Jobs for User:", userId);
-      const API_URL = `http://192.168.108.30:5140/api/UserJob/GetUserAppliedJobs?UserId=${userId}`;
+      const API_URL = `http://192.168.100.22:5140/api/UserJob/GetUserAppliedJobs?UserId=${userId}`;
       const response = await axios.get(API_URL);
 
       console.log("API Response:", response.data);

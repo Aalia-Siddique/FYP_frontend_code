@@ -163,15 +163,28 @@ const Tab = () => {
 
       {/* Modal Component */}
       <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <View style={{ width: 300, backgroundColor: "white", padding: 20, borderRadius: 10 }}>
-            <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "bold", marginBottom: 20 }}>Select an Option</Text>
-            <Button title="Post a Job" onPress={handlePostJob} />
-            <Button title="Post a Service" onPress={handlePostService} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
+  <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" }}>
+    <View style={{ width: 300, backgroundColor: "white", padding: 20, borderRadius: 10, alignItems: "center" }}>
+      <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "bold", marginBottom: 20 }}>Select an Option</Text>
+      
+      <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+        <TouchableOpacity onPress={handlePostJob} style={{ flex: 1, backgroundColor: "#6ab04c", padding: 10, borderRadius: 5, marginRight: 5, alignItems: "center" }}>
+          <Text style={{ color: "white", fontWeight: "bold" }}>Post a Job</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={handlePostService} style={{ flex: 1, backgroundColor: "#6ab04c", padding: 10, borderRadius: 5, marginLeft: 5, alignItems: "center" }}>
+          <Text style={{ color: "white", fontWeight: "bold" }}>Post a Service</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={() => setModalVisible(false)} style={{ marginTop: 15, backgroundColor: "#eb4d4b", padding: 10, borderRadius: 5, width: "100%", alignItems: "center" }}>
+        <Text style={{ color: "white", fontWeight: "bold" }}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
     </>
   );
 };

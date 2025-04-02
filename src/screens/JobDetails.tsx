@@ -71,8 +71,8 @@ type JobDetailsRouteProp = RouteProp<{
       const decodedToken: any = jwtDecode(token);
       const userId = decodedToken.Id;
       const endpoint = isService 
-          ? 'http://192.168.108.30:5140/api/UserJob/CreateUserService'
-          : 'http://192.168.108.30:5140/api/UserJob/CreateUserjob';
+          ? 'http://192.168.100.22:5140/api/UserJob/CreateUserService'
+          : 'http://192.168.100.22:5140/api/UserJob/CreateUserjob';
   
       
       const requestBody = isService 

@@ -5,7 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
 
-const FeedbackScreen = ({ route }) => {
+const ReviewsScreen = ({ route }) => {
     const { userId } = route.params;
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
@@ -87,7 +87,7 @@ const FeedbackScreen = ({ route }) => {
 />
 
             {/* Add Comment Button */}
-            {!showForm ? (
+            {/* {!showForm ? (
                 <TouchableOpacity style={styles.addButton} onPress={() => setShowForm(true)}>
                     <Text style={styles.addButtonText}>Add Your Comment</Text>
                 </TouchableOpacity>
@@ -108,10 +108,10 @@ const FeedbackScreen = ({ route }) => {
     <View style={{ marginTop: 15 }}> 
                     
     <Button title="Cancel" onPress={() => setShowForm(false)} color="green" /> 
-    </View>
+    </View> */}
 
-                </View>
-            )}
+                {/* </View>
+            )} */}
         </View>
     );
 };
@@ -152,4 +152,4 @@ const styles = StyleSheet.create({
     
 });
 
-export default FeedbackScreen;
+export default ReviewsScreen;

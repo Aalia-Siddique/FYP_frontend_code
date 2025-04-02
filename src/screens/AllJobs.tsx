@@ -27,7 +27,7 @@ const AllJobs = () => {
     // Fetch categories from the backend API
     const fetchCategories = async () => {
       try {
-        const response = await axios.get<Category[]>('http://192.168.108.30:5140/api/Category/AllCategories');
+        const response = await axios.get<Category[]>('http://192.168.100.22:5140/api/Category/AllCategories');
         setJobCategories(response.data.$values || []);
         // setJobCategories(response.data); // Update state with the fetched categories
       } catch (err) {
@@ -55,7 +55,7 @@ const AllJobs = () => {
       <View style={styles.mainBox}>
         {jobCategories.map((category) => {
           // Construct the image URL dynamically
-          const imageUrl = `http://192.168.108.30:5140/CategoryImages/${category.categoryImageName}`;
+          const imageUrl = `http://192.168.100.22:5140/CategoryImages/${category.categoryImageName}`;
       console.log(imageUrl)
 
           return (

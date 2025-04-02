@@ -46,8 +46,8 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
     try {
       setLoading(true);
       let apiUrl = jobType.toLowerCase() === "job" 
-        ? `http://192.168.108.30:5140/api/UserJob/GetApplicantsByJob/${jobId}` 
-        : `http://192.168.108.30:5140/api/UserJob/GetApplicantsByService/${jobId}`;
+        ? `http://192.168.100.22:5140/api/UserJob/GetApplicantsByJob/${jobId}` 
+        : `http://192.168.100.22:5140/api/UserJob/GetApplicantsByService/${jobId}`;
 
       const response = await fetch(apiUrl);
       const result: ApiResponse = await response.json();
@@ -73,8 +73,8 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
       }
   
       const apiUrl = jobType.toLowerCase() === "job"
-        ? "http://192.168.108.30:5140/api/UserJob/AcceptedJobApplication"
-        : "http://192.168.108.30:5140/api/UserJob/AcceptedServiceApplication";
+        ? "http://192.168.100.22:5140/api/UserJob/AcceptedJobApplication"
+        : "http://192.168.100.22:5140/api/UserJob/AcceptedServiceApplication";
   
       const decodedToken: any = jwtDecode(token);
       const userId = decodedToken.Id;
@@ -132,7 +132,7 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
                 <Image
                   source={{ 
                     uri: item.userImage 
-                      ? `http://192.168.108.30:5165/${item.userImage}` 
+                      ? `http://192.168.100.22:5165/${item.userImage}` 
                       : Image.resolveAssetSource(defaultImage).uri
                   }} 
                   style={styles.userImage}

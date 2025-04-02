@@ -1,25 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 
-const UserProfileScreen = ({ route, navigation }) => {
+const UserProfile1 = ({ route, navigation }) => {
   const { userId } = route.params;
   const [user, setUser] = useState(null);
+  const [rating, setRating] = useState(null);
 
   useEffect(() => {
     fetchUserData();
+    fetchUserRating(); // Fetch rating
   }, [userId]);
 
   const fetchUserData = async () => {
     try {
       const response = await fetch(`http://192.168.100.22:5165/api/Users/GetUsersById/${userId}`);
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
+
       const result = await response.json();
-      if (!result || Object.keys(result).length === 0) throw new Error("User data is empty or invalid");
-      
       setUser(result);
     } catch (error) {
       console.error("Error fetching user data:", error.message);
+    }
+  };
+
+  const fetchUserRating = async () => {
+    try {
+      const response = await fetch(`http://192.168.100.22:5209/api/Feedback/GetUserRating/${userId}`);
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+      const result = await response.json();
+      setRating(result.averageRating);
+    } catch (error) {
+      console.error("Error fetching user rating:", error.message);
     }
   };
 
@@ -32,6 +44,13 @@ const UserProfileScreen = ({ route, navigation }) => {
         <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.job}>{user.job}</Text>
         <Text style={styles.city}>{user.city}</Text>
+
+        {/* Rating Show Karna */}
+        <View style={styles.ratingContainer}>
+          <Text style={styles.ratingText}>
+            Rating:⭐ {rating !== null ? rating : "Loading..."}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.detailsContainer}>
@@ -42,29 +61,11 @@ const UserProfileScreen = ({ route, navigation }) => {
         {renderInfoBlock("Address", user.address)}
         {renderInfoBlock("Date of Birth", user.dateofBirth)}
       </View>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("AllUsers")}>
+        <Text style={styles.backButtonText}>Go Back</Text>
+      </TouchableOpacity>
 
-      <View style={styles.detailsContainer}>
-        <Text style={styles.sectionTitle}>CNIC Image</Text>
-        <Image source={{ uri: `http://192.168.100.22:5165/${user.cnicImageName}` }} style={styles.extraImage1} />
-      </View>
-
-      <View style={styles.detailsContainer}>
-        <Text style={styles.sectionTitle}>License and Certificate</Text>
-        <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.100.22:5165/${user.certificateImageName}`)}>
-          <Image source={{ uri: `http://192.168.100.22:5165/${user.certificateImageName}` }} style={styles.extraImage} />
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.downloadButton} 
-          onPress={() => Linking.openURL(`http://192.168.100.22:5165/${user.certificateImageName}`)}
-        >
-          <Text style={styles.downloadButtonText}>Download Certificate</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* View Comments Button */}
-      <TouchableOpacity 
-        style={styles.commentsButton} 
-        onPress={() => navigation.navigate("FeedbackScreen", { userId })}>
+      <TouchableOpacity style={styles.commentsButton} onPress={() => navigation.navigate("FeedbackScreen", { userId })}>
         <Text style={styles.commentsButtonText}>View Comments</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -85,18 +86,18 @@ const styles = StyleSheet.create({
   name: { fontSize: 26, fontWeight: "bold", color: "#333", marginTop: 10 },
   job: { fontSize: 18, color: "#0073b1" },
   city: { fontSize: 16, color: "#666", marginBottom: 10 },
+  ratingContainer: { marginTop: 10, padding: 5, borderRadius: 5, backgroundColor: 'white' },
+  ratingText: { fontSize: 18, fontWeight: "bold", color: "red" },
   detailsContainer: { width: "100%", backgroundColor: "#fff", padding: 15, borderRadius: 10, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5, marginBottom: 20 },
   sectionTitle: { fontSize: 20, fontWeight: "bold", color: "#0073b1", marginBottom: 10, textAlign: "center" },
   infoBlock: { marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: "#ddd" },
   label: { fontWeight: "bold", fontSize: 16, color: "#444", marginBottom: 3 },
   value: { fontSize: 16, color: "#666" },
-  extraImage: { width: 230, height: 200, borderRadius: 10, borderWidth: 1, borderColor: "#ccc", marginBottom: 15, alignSelf: "center" },
-  extraImage1: { width: 180, height: 180, borderRadius: 10, borderWidth: 1, borderColor: "#ccc", marginBottom: 15, alignSelf: "flex-start" },
   errorText: { fontSize: 16, color: "red", textAlign: "center", marginTop: 20 },
-  downloadButton: { backgroundColor: "#0073b1", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 },
-  downloadButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
   commentsButton: { backgroundColor: "#28a745", padding: 12, borderRadius: 5, alignItems: "center", marginTop: 20 },
-  commentsButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" }
+  commentsButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  backButton: { backgroundColor: "#ff4d4d", padding: 12, borderRadius: 5, alignItems: "center", marginTop: 10 },
+  backButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
 
-export default UserProfileScreen;
+export default UserProfile1;

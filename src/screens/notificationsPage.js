@@ -12,7 +12,7 @@ export default function NotificationList() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("http://192.168.108.30:5074/api/Notifications/GetAllNotifications");
+      const response = await fetch("http://192.168.100.22:5074/api/Notifications/GetAllNotifications");
       const data = await response.json();
       console.log(data);
       setNotifications(data);

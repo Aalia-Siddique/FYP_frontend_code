@@ -82,7 +82,7 @@ const UpdateProfile = ({ route, navigation }) => {
         const decodedToken = jwtDecode(token);
         const Id = decodedToken.Id;
 
-        const updateUrl = `http://192.168.108.30:5165/api/Users/UpdateUser/${Id}`;
+        const updateUrl = `http://192.168.100.22:5165/api/Users/UpdateUser/${Id}`;
         const formData = new FormData();
 
         Object.keys(updatedData).forEach((key) => {
@@ -137,7 +137,7 @@ const UpdateProfile = ({ route, navigation }) => {
         <>
           <Text style={styles.label}>{key}</Text>
           <Image
-            source={{ uri: selectedImages[key] || `http://192.168.108.30:5165/${updatedData[key]}` }}
+            source={{ uri: selectedImages[key] || `http://192.168.100.22:5165/${updatedData[key]}` }}
             style={styles.image}
           />
           <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage(key)}>

@@ -58,6 +58,27 @@ const [modalVisible, setModalVisible] = useState(false);
 const [selectedFilterType, setSelectedFilterType] = useState('');
 const [selectedOption, setSelectedOption] = useState('');
 const [applyNowVisible, setApplyNowVisible] = useState(false);
+const [cities, setCities] = useState<string[]>([]);
+
+useEffect(() => {
+  const fetchCities = async () => {
+    try {
+      const response = await axios.get<{ id: number; name: string }[]>(
+        'http://192.168.100.22:5165/api/City/GetAllCity'
+      ); 
+
+      // Cities ke names extract karna
+      const cityNames = response.data.map(city => city.name);
+
+      setCities(cityNames);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
+  };
+
+  fetchCities();
+}, []);
+
 // Filters with options for each category
 const filters = [
   { 
@@ -70,7 +91,7 @@ const filters = [
     label: 'City', 
     icon: require('../../Images/Cetagories/location_on.png'), 
     dropdownIcon: require('../../Images/Cetagories/arrow_drop_down.png'), 
-    options: ['New York', 'San Francisco', 'Los Angeles', 'Chicago'] 
+    options: cities 
   },
   { 
     label: 'Salary', 
@@ -182,7 +203,7 @@ useEffect(() => {
     try {
       console.log('CATEGOTY ID:', categoryId); 
       const response = await axios.get<ApiResponse>(
-        `http://192.168.108.30:5140/api/Category/${categoryId}/posts`
+        `http://192.168.100.22:5140/api/Category/${categoryId}/posts`
       );
 
       
@@ -420,7 +441,7 @@ return (
       {/* Job Header */}
       <View style={styles.header}>
         <Image
-          source={job.userImage ? { uri: job.userImage } : require('../../Images/Homeimages/m1.jpeg')}
+           source={{ uri: `http://192.168.100.22:5165/${job.profileImage}` }}
           resizeMode="cover"
           style={styles.Postimage}
         />
@@ -498,7 +519,7 @@ return (
                             {/* Same layout for jobs */}
                             <View style={styles.header}>
                                 <Image
-                                    source={imageMap[service.imageName] || require('../../Images/Homeimages/m1.jpeg')}
+                                     source={{ uri: `http://192.168.100.22:5165/${service.profileImage}` }}
                                     resizeMode="cover"
                                     style={styles.Postimage}
                                 />

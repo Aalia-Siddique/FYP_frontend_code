@@ -11,13 +11,14 @@ import {
   Alert,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-
+import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation, useRoute ,RouteProp} from "@react-navigation/native";
 
 import * as ImagePicker from 'expo-image-picker';
-interface SignUpPageProps {
-  navigation: StackNavigationProp<any>;
-}
+// interface SignUpPageProps {
+//   navigation: StackNavigationProp<any>;
+// }
 
 
 
@@ -50,19 +51,37 @@ type FormDataProps = {
   filename: string;
   fileType: string;
 }
-const SignUp: React.FC<SignUpPageProps> = ({ navigation }) => {
+
+
+type RootStackParamList = {
+  SignUpPage: { latitude?: number; longitude?: number };
+};
+
+type SignUpPageProps = {
+  navigation: StackNavigationProp<RootStackParamList, "SignUpPage">;
+};
+
+const SignUpPage: React.FC<SignUpPageProps> = ({ navigation }) => {
   const [manualDate, setManualDate] = useState<string>("");
   const [error, setError] = useState<string>("");
-const [city, setCity] = useState<City[]>([]);
-const [jobs, setJobs] = useState<Job[]>([]);
-const [selectedJob, setSelectedJob] = useState('');
+  const [city, setCity] = useState<City[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [selectedJob, setSelectedJob] = useState("");
+  const [isJobPickerVisible, setIsJobPickerVisible] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [isPickerVisible, setIsPickerVisible] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
-const [isJobPickerVisible, setIsJobPickerVisible] = useState(false);
+  const route = useRoute<RouteProp<RootStackParamList, "SignUpPage">>();
 
-const [selectedCity, setSelectedCity] = useState('');
-const [isPickerVisible, setIsPickerVisible] = useState(false);
-
-
+  useEffect(() => {
+    if (route.params && route.params.latitude !== undefined && route.params.longitude !== undefined) {
+      setSelectedLocation({
+        latitude: route.params.latitude,
+        longitude: route.params.longitude,
+      });
+    }
+  }, [route.params]);
 useEffect(() => {
   GetCity();
   GetJobs();
@@ -162,7 +181,7 @@ useEffect(() => {
     try {
       console.log('Data to post:', dataToPost);
   
-      const response = await fetch('http://192.168.108.30:5165/api/Auth/signup', {
+      const response = await fetch('http://192.168.100.22:5165/api/Auth/signup', {
         method: 'POST',
         headers: {
           "Accept": "application/json",
@@ -178,21 +197,56 @@ useEffect(() => {
       const result = text ? JSON.parse(text) : null;
   
       if (response.ok && result) {
-        Alert.alert('Success', 'Account created successfully!', [
-          { text: 'OK', onPress: () => navigation.navigate('Login') } 
-        ]);
+        const userId = result.userId;  // Get the userId from sign-up response
+        Alert.alert('Success', 'Account created successfully!');
+
+        // Call save location API
+        saveUserLocation(userId);
       } else {
-        console.log('Error Details:', result);
+        Alert.alert('Error', 'Failed to sign up.');
       }
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'Something went wrong.');
     }
   };
+
+  const saveUserLocation = async (userId: string) => {
+    if (!selectedLocation) {
+      Alert.alert("Error", "Please select a location before signing up.");
+      return;
+    }
+  
+    try {
+      console.log("Saving location: ", selectedLocation.latitude, selectedLocation.longitude);
+      const response = await fetch('http://192.168.100.22:5191/api/Location/save', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId,
+          latitude: selectedLocation.latitude,
+          longitude: selectedLocation.longitude,
+        }),
+      });
+  
+      if (response.ok) {
+        Alert.alert("Success", "Location saved successfully!");
+        navigation.navigate("Login");
+      } else {
+        Alert.alert("Failed to Save Location", "Error in saving user location.");
+      }
+    } catch (error) {
+      console.error("Error saving location:", error);
+      Alert.alert("Network Error", "Something went wrong.");
+    }
+  };
+  
   const GetCity = async () => {
     try {
       const response = await axios.get<City[]>(
-        'http://192.168.108.30:5165/api/City/GetAllCity'
+        'http://192.168.100.22:5165/api/City/GetAllCity'
       );
       console.log('API Response:', response.data);
       setCity(response.data); // Correct way
@@ -202,7 +256,7 @@ useEffect(() => {
   };
   const GetJobs = async () => {
     try {
-      const response = await axios.get<{ $values: Job[] }>('http://192.168.108.30:5140/api/Category/AllCategories');
+      const response = await axios.get<{ $values: Job[] }>('http://192.168.100.22:5140/api/Category/AllCategories');
       setJobs(response.data.$values);
     } catch (error) {
       console.error('Error fetching jobs:', error);
@@ -403,7 +457,29 @@ useEffect(() => {
         />
         {error ? <Text style={{ color: "red", marginTop: 5 }}>{error}</Text> : null}
       </View>
+      <Text style={styles.label}>Select your Location</Text>
+      <TouchableOpacity
+        style={{ borderWidth: 1, padding: 10, marginBottom: 10, backgroundColor: "#ddd" }}
+        onPress={() => {
+          console.log("Navigating to SelectLocationScreen");
+          navigation.navigate("SelectLocationScreen");
+        }}
+      >
+        <Text>{selectedLocation ? `Lat: ${selectedLocation.latitude}, Lng: ${selectedLocation.longitude}` : "Select Location"}</Text>
+      </TouchableOpacity>
 
+      {/* <Text style={styles.label}>Location</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Select your location"
+       //   value={location}
+          editable={false} // User manually edit nahi kar sakta
+        />
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Location")}>
+          <Text style={styles.buttonText}>📍</Text>
+        </TouchableOpacity>
+      </View> */}
       <Text style={styles.label}>Job</Text>
       <TouchableOpacity
         style={styles.inputContainer}
@@ -573,7 +649,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-export default SignUp;
+export default SignUpPage;
 
 
 

@@ -12,11 +12,13 @@ type RootStackParamList = {
 
 type MeScreenProp = StackScreenProps<RootStackParamList, 'Me'>;
 
-const API_BASE_URL = 'http://192.168.108.30:5165/api';
+const API_BASE_URL = 'http://192.168.100.22:5165/api';
 
 const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
   const { userData } = route.params || { userData: {} };
-  
+  const [activeTab, setActiveTab] = useState("JobsScreen");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [selectedTab, setSelectedTab] = useState("Jobs");
   const [data, setData] = useState({
     Name: '',
     PhoneNumber: '',
@@ -51,7 +53,7 @@ const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
       const Id = decodedToken.Id;
 console.log(decodedToken)
 console.log(Id)
-
+setUserId(Id);
       const response = await axios.get(`${API_BASE_URL}/Users/GetUsersById/${Id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -83,17 +85,79 @@ console.log(Id)
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
+   // Default selected tab
+
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.profileHeader}>
-            <Image source={{ uri: `http://192.168.108.30:5165/${data.UserImageName}` }} style={styles.userImage} />
+            <Image source={{ uri: `http://192.168.100.22:5165/${data.UserImageName}` }} style={styles.userImage} />
             <Text style={styles.name}>{data.Name}</Text>
             <Text style={styles.job}>{data.Job}</Text>
             <Text style={styles.city}>{data.City}</Text>
           </View>
-    
+          <View style={styles.tabsContainer}>
+      <TouchableOpacity
+        onPress={() => {
+          setActiveTab("JobsScreen");
+          navigation.navigate("JobsScreen");
+        }}
+        style={[
+          styles.tab,
+          activeTab === "JobsScreen" && styles.activeTab, // Change color if active
+        ]}
+      >
+        <Text
+          style={[
+            styles.tabText,
+            activeTab === "JobsScreen" && styles.activeTabText, // Change text color
+          ]}
+        >
+          Jobs
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+          setActiveTab("ServicesScreen");
+          navigation.navigate("ServicesScreen");
+        }}
+        style={[
+          styles.tab,
+          activeTab === "ServicesScreen" && styles.activeTab,
+        ]}
+      >
+        <Text
+          style={[
+            styles.tabText,
+            activeTab === "ServicesScreen" && styles.activeTabText,
+          ]}
+        >
+          Services
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+  onPress={() => {
+    setActiveTab("ReviewsScreen");
+    navigation.navigate("ReviewsScreen", { userId }); // Corrected navigation
+  }}
+        style={[
+          styles.tab,
+          activeTab === "ReviewsScreen" && styles.activeTab,
+        ]}
+      >
+        <Text
+          style={[
+            styles.tabText,
+            activeTab === "ReviewsScreen" && styles.activeTabText,
+          ]}
+        >
+          Reviews
+        </Text>
+      </TouchableOpacity>
+    </View>
           <View style={styles.detailsContainer}>
             <Text style={styles.sectionTitle}>User Information</Text>
             {renderInfoBlock("CNIC", data.Cnic)}
@@ -105,17 +169,17 @@ console.log(Id)
     
           <View style={styles.detailsContainer}>
             <Text style={styles.sectionTitle}>CNIC Image</Text>
-            <Image source={{ uri: `http://192.168.108.30:5165/${data.CnicImageName}` }} style={styles.extraImage1} />
+            <Image source={{ uri: `http://192.168.100.22:5165/${data.CnicImageName}` }} style={styles.extraImage1} />
           </View>
     
           <View style={styles.detailsContainer}>
             <Text style={styles.sectionTitle}>License and Certificate</Text>
-            <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.108.30:5165/${data.CertificateImageName}`)}>
-              <Image source={{ uri: `http://192.168.108.30:5165/${data.CertificateImageName}` }} style={styles.extraImage} />
+            <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.100.22:5165/${data.CertificateImageName}`)}>
+              <Image source={{ uri: `http://192.168.100.22:5165/${data.CertificateImageName}` }} style={styles.extraImage} />
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.downloadButton} 
-              onPress={() => Linking.openURL(`http://192.168.108.30:5165/${data.CertificateImageName}`)}
+              onPress={() => Linking.openURL(`http://192.168.100.22:5165/${data.CertificateImageName}`)}
             >
               <Text style={styles.downloadButtonText}>Download Certificate</Text>
             </TouchableOpacity>
@@ -141,7 +205,7 @@ console.log(Id)
       name: { fontSize: 26, fontWeight: "bold", color: "#333", marginTop: 10 },
       job: { fontSize: 18, color: "#0073b1" },
       city: { fontSize: 16, color: "#666", marginBottom: 10 },
-      detailsContainer: { width: "100%", backgroundColor: "#fff", padding: 15, borderRadius: 10, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5, marginBottom: 20 },
+      detailsContainer: { width: "100%", backgroundColor: "#fff", padding: 15, borderRadius: 10, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5, margin: 20 },
       sectionTitle: { fontSize: 20, fontWeight: "bold", color: "#0073b1", marginBottom: 10, textAlign: "center" },
       infoBlock: { marginBottom: 10, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: "#ddd" },
       label: { fontWeight: "bold", fontSize: 16, color: "#444", marginBottom: 3 },
@@ -152,6 +216,38 @@ console.log(Id)
       downloadButton: { backgroundColor: "#0073b1", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 },
       downloadButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
       commentsButton: { backgroundColor: "#28a745", padding: 12, borderRadius: 5, alignItems: "center", marginTop: 20 },
-      commentsButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" }
+      commentsButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+      tabsContainer: {
+        flexDirection: "row",
+        justifyContent: "space-evenly", // Equal spacing
+        borderBottomWidth: 1,
+        borderBottomColor: "#ccc",
+        paddingBottom: 5,
+      },
+      tab: {
+        flex: 1, // Full width for even spacing
+        alignItems: "center",
+      },
+      tabText: {
+        fontSize: 16,
+        color: "#555",
+      },
+      activeTab: {
+        fontWeight: "bold",
+        color: "#007bff",
+        borderBottomWidth: 2,
+        borderBottomColor: "#007bff",
+      },
+      activeTabText: {
+        color: "#007bff", // Active text color
+      },
+      // detailsContainer: {
+      //   marginTop: 10,
+      // },
+      // sectionTitle: {
+      //   fontSize: 16,
+      //   fontWeight: "bold",
+      //   marginBottom: 8,
+      // },
     });
     export default Me;
