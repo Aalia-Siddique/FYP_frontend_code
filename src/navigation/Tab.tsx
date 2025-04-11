@@ -44,6 +44,7 @@ const Tab = () => {
     <>
       <Tabs.Navigator
         screenOptions={{
+          headerShown: false, 
           tabBarShowLabel: false,
           tabBarStyle: {
             backgroundColor: "#ffffff",
@@ -70,6 +71,7 @@ const Tab = () => {
                 <Text style={{ textAlign: "center", fontSize: 8, color: focused ? "#6ab04c" : "black" }}>Home</Text>
               </View>
             ),
+            tabBarLabel: "Home",
           }}
         />
         <Tabs.Screen

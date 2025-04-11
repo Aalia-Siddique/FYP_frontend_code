@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, StyleSheet, FlatList, Image,TouchableOpa
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
-
+import { useFocusEffect } from '@react-navigation/native'; // Import the hook
 const API_BASE_URL = 'http://192.168.100.22:5140/api';
 
 const ServicesScreen = () => {
@@ -14,6 +14,11 @@ const ServicesScreen = () => {
   useEffect(() => {
     fetchJobs();
   }, []);
+ useFocusEffect(
+    React.useCallback(() => {
+      fetchJobs(); // Re-fetch the jobs every time the screen comes into focus
+    }, []) // Empty array means it will run when screen focuses, without any dependency
+  );
 
   const formatDate = (utcDate) => {
     const date = new Date(utcDate);
@@ -126,7 +131,7 @@ const ServicesScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f3f3f3" },
+  container: { flex: 1, padding: 20, backgroundColor: "#f3f3f3",marginTop:40 },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
   card: { backgroundColor: "#fff", padding: 15, elevation: 3,borderRadius: 8,borderWidth:2, borderColor: '#6AE87B', marginVertical: 5 },
   header: {

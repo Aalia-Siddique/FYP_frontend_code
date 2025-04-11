@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking } from "react-native";
 
-const UserProfileScreen = ({ route, navigation }) => {
+const AcceptedAppplicantProfile = ({ route, navigation }) => {
   const { userId } = route.params;
   const [user, setUser] = useState(null);
 
@@ -11,7 +11,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`http://192.168.100.22:5165/api/Users/GetUsersById/${userId}`);
+      const response = await fetch(`http://192.168.100.22:5165/api/users/GetUsersById/${userId}`);
       if (!response.ok) throw new Error(`Error: ${response.status}`);
       
       const result = await response.json();
@@ -67,6 +67,12 @@ const UserProfileScreen = ({ route, navigation }) => {
         onPress={() => navigation.navigate("FeedbackScreen", { userId })}>
         <Text style={styles.commentsButtonText}>View Comments</Text>
       </TouchableOpacity>
+      <TouchableOpacity 
+  style={styles.reportButton} 
+  onPress={() => navigation.navigate("SafetyScreen", { userId })}>
+  <Text style={styles.reportButtonText}>Report User</Text>
+</TouchableOpacity>
+
     </ScrollView>
   );
 };
@@ -95,8 +101,22 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 16, color: "red", textAlign: "center", marginTop: 20 },
   downloadButton: { backgroundColor: "#0073b1", padding: 10, borderRadius: 5, alignItems: "center", marginTop: 10 },
   downloadButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  commentsButton: { backgroundColor: "#28a745", padding: 12, borderRadius: 5, alignItems: "center", marginTop: 20 },
-  commentsButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" }
+  commentsButton: { backgroundColor: "#28a745", padding: 12, borderRadius: 5, alignItems: "center", margin: 20 },
+  commentsButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  reportButton: {
+    backgroundColor: "#dc3545",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginBottom: 30,
+  },
+  reportButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  
 });
 
-export default UserProfileScreen;
+export default AcceptedAppplicantProfile;

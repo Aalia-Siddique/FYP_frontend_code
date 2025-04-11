@@ -63,13 +63,13 @@ const NotificationBell = () => {
     <View
       style={{
         flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: 10,
+        // justifyContent: "space-between",
+        // alignItems: "center",
+        padding: 0,
         backgroundColor: "white",
       }}
     >
-      <Text style={{ fontSize: 20, fontWeight: "bold" }}>Home</Text>
+      {/* <Text style={{ fontSize: 20, fontWeight: "bold" }}>Home</Text> */}
 
       {/* 🔔 Bell Icon with Badge */}
       <TouchableOpacity
@@ -77,15 +77,15 @@ const NotificationBell = () => {
           navigation.navigate("notificationsPage");
           markNotificationsAsRead();
         }}
-        style={{ position: "relative", padding: 5 }}
+        style={{ position: "relative", padding: 0}}
       >
         <Ionicons name="notifications-outline" size={28} color="black" />
         {unreadCount > 0 && (
           <View
             style={{
               position: "absolute",
-              top: -5,
-              right: -5,
+              top: 0,
+              right: 0,
               backgroundColor: "red",
               borderRadius: 10,
               width: 18,

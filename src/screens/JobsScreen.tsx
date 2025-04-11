@@ -5,7 +5,7 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 
 const API_BASE_URL = 'http://192.168.100.22:5140/api';
-
+import { useFocusEffect } from '@react-navigation/native';
 const JobsScreen = () => {
   const [jobs, setJobs] = useState([]);
   const [userImage, setUserImage] = useState('');
@@ -14,6 +14,14 @@ const JobsScreen = () => {
   useEffect(() => {
     fetchJobs();
   }, []);
+
+  // Listen to the 'refreshJobs' event to trigger fetching of jobs
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchJobs(); // Re-fetch the jobs every time the screen comes into focus
+    }, []) // Empty array means it will run when screen focuses, without any dependency
+  );
+
   const formatDate = (utcDate) => {
     const date = new Date(utcDate); // Convert UTC date string to Date object
     const day = String(date.getDate()).padStart(2, '0'); // Get day with leading zero
@@ -131,7 +139,7 @@ const JobsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f3f3f3" },
+  container: { flex: 1, padding: 20, backgroundColor: "#f3f3f3" ,marginTop:40},
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
   card: { backgroundColor: "#fff", padding: 15, elevation: 3,borderRadius: 8,borderWidth:2, borderColor: '#6AE87B', marginVertical: 5 },
   header: {

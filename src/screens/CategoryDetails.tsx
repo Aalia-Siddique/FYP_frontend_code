@@ -590,7 +590,8 @@ return (
 
 const styles = StyleSheet.create({
   container: {
-    padding: 5,
+    padding: 10,
+    margin:20
   },
   inputStyle:{
     width:'80%',
@@ -615,8 +616,10 @@ paddingLeft: 15,
 paddingRight: 10,
 color:'black',
 height: 50,
-margin:10,
+margin:20,
+marginTop:40,
 width:'90%',
+
 },
 iconStyle: {
 width: 24, // Adjust based on your icon size

@@ -117,7 +117,7 @@ const ReviewsScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
+    container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5',marginTop:40 },
     header: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
     feedbackCard: {
         backgroundColor: 'white',

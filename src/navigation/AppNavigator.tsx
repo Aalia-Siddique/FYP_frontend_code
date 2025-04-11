@@ -17,9 +17,9 @@ import JobDetails from '../screens/JobDetails';
 import ApplicantsScreen from '../screens/ApplicantsScreen';
 import UserProfileScreen from '../screens/UserProfile';
 import UpdateProfile from '../screens/UpdateProfile';
-import AppliedJobsScreen from '../screens/AppliedJobs';
+import AppliedJobs from '../screens/AppliedJobs';
 import FeedbackScreen from '../screens/FeedbackScreen';
-import AppliedServicesScreen from '../screens/AppliedServices';
+import AppliedServices from '../screens/AppliedServices';
 import NotificationList from '../screens/notificationsPage';
 import JobsScreen from '../screens/JobsScreen';
 import ServicesScreen from '../screens/ServicesScreen';
@@ -28,6 +28,15 @@ import AllUsers from '../screens/AllUsers';
 import UserProfile1 from '../screens/UserProfile1';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReviewsScreen from '../screens/ReviewsScreen';
+import updateLocation from '../screens/updateLocation';
+import AllJobs from '../screens/AllJobs';
+import EditJobScreen from '../screens/EditJobScreen';
+import EditServiceScreen from '../screens/EditServiceScreen';
+
+import AcceptedApplicants from '../screens/AcceptedApplicants';
+import AcceptedAppplicantProfile from '../screens/AcceptedAplicantProfile';
+import SafetyScreen from '../screens/SafetyScreen';
+
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
@@ -51,36 +60,137 @@ const AppNavigator = () => {
       {isLoggedIn ? (
   <Stack.Screen name="Drawer" options={{ headerShown: false }}>
     {() => (
-      <Drawer.Navigator>
-        <Drawer.Screen name="HomeTabs" component={Tab} />
+      <Drawer.Navigator >
+        <Drawer.Screen 
+    name="Home" 
+    component={Tab} 
+    options={({ route }) => ({
+      drawerLabel: route.name === "Home" ? "HomeTabs" : "Home", // Sirf HomeTabs screen pe label show hoga
+      headerShown: true
+    })} 
+  />
        {/* // <Drawer.Screen name="Notifications" component={Notifications} /> */}
-        <Drawer.Screen name="CategoryForm" component={CategoryForm} />
-        <Drawer.Screen name="SignUpPage" component={SignUpPage} />
-        <Drawer.Screen name="PostJob" component={PostJob} /> 
-        <Drawer.Screen name="PostService" component={PostService} /> 
-        <Drawer.Screen name="CategoryDetails" component={CategoryDetails} /> 
-        <Drawer.Screen name="JobDetails" component={JobDetails} /> 
-        <Drawer.Screen name="UserProfile" component={UserProfileScreen} /> 
-         <Drawer.Screen name="UpdateProfile" component={UpdateProfile} /> 
-         <Drawer.Screen name="FeedbackScreen" component={FeedbackScreen} /> 
-         <Drawer.Screen name="JobsScreen" component={JobsScreen} /> 
-         <Drawer.Screen name="ServicesScreen" component={ServicesScreen} />
-         <Drawer.Screen name="SelectLocationScreen" component={SelectLocationScreen} />
+      
+        <Drawer.Screen name="SignUpPage" component={SignUpPage}
+        options={{ headerShown: false }}
+         />
+        <Drawer.Screen name="PostJob" component={PostJob}
+         options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }}  /> 
+        <Drawer.Screen 
+  name="PostService" 
+  component={PostService}
+  options={{ 
+    headerShown: false,  // Yeh header ko hide karega
+    drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+  }}  
+/>
+
+        <Drawer.Screen name="CategoryDetails" component={CategoryDetails}
+        options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }}  /> 
+        <Drawer.Screen name="JobDetails" component={JobDetails} 
+        options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }}  /> 
+        <Drawer.Screen name="UserProfile" component={UserProfileScreen} 
+         options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }}  /> 
+         <Drawer.Screen name="Login" component={LoginPage}
+         options={{ drawerItemStyle: { display: 'none' } }} /> 
+         <Drawer.Screen name="UpdateProfile" component={UpdateProfile} 
+          options={{ drawerItemStyle: { display: 'none' } }} /> 
+         <Drawer.Screen name="FeedbackScreen" component={FeedbackScreen} 
+         options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }}  /> 
+         <Drawer.Screen name="JobsScreen" component={JobsScreen} 
+         options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }} /> 
+         <Drawer.Screen name="updateLocation" component={updateLocation}
+          options={{ drawerItemStyle: { display: 'none' } }}  />
+         <Drawer.Screen name="ServicesScreen" component={ServicesScreen} 
+         options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }} />
+         <Drawer.Screen name="SelectLocationScreen" component={SelectLocationScreen}
+         options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }}   />
          <Drawer.Screen name="ApplicantsScreen" component={ApplicantsScreen} 
+        options={{ 
+          headerShown: false,  // Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }} 
         
         /> 
-           <Drawer.Screen name="notificationsPage" component={NotificationList} />
+           <Drawer.Screen name="AllJobs" component={AllJobs} 
+        options={{ 
+          headerShown: false, 
+          drawerLabel:"all" ,// Yeh header ko hide karega
+          drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+        }} 
+        
+        /> 
+           <Drawer.Screen name="notificationsPage" component={NotificationList} 
+            options={{ drawerItemStyle: { display: 'none' } }} />
 
          {/* {/* <Drawer.Screen name="ReviewsScreen" component={} />  */}
-         <Drawer.Screen name="ReviewsScreen" component={ReviewsScreen} />
+         <Drawer.Screen name="ReviewsScreen" component={ReviewsScreen}
+          options={{ 
+            headerShown: false,  // Yeh header ko hide karega
+            drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+          }}   />
   
        
-         <Drawer.Screen name="AppliedJobs" component={AppliedJobsScreen} />
-         <Drawer.Screen name="UserProfile1" component={UserProfile1} />
-         <Drawer.Screen name="AllUsers" component={AllUsers} />
+         <Drawer.Screen 
+    name="AppliedJobs" 
+    component={AppliedJobs} 
+    options={{ drawerItemStyle: { display: 'none' } }} 
+  />
+         <Drawer.Screen name="UserProfile1" component={UserProfile1}
+          options={{ 
+            headerShown: false,  // Yeh header ko hide karega
+            drawerItemStyle: { display: 'none' } // Yeh item ko drawer se hide karega
+          }}   />
+         <Drawer.Screen name="AllUsers" component={AllUsers}  options={{ headerShown: false }} />
       
-       <Drawer.Screen name="AppliedServices" component={AppliedServicesScreen}/>
-
+       <Drawer.Screen name="AppliedServices"
+        component={AppliedServices}
+        options={{ drawerItemStyle: { display: 'none' } }} 
+        />
+          <Drawer.Screen name="EditJobScreen" component={EditJobScreen}
+        options={{ headerShown: false }}
+         />
+        
+        <Drawer.Screen name="EditServiceScreen" component={EditServiceScreen}
+        options={{ headerShown: false }}
+        
+         />
+         <Drawer.Screen name="AcceptedApplicants"
+        component={AcceptedApplicants}
+        options={{ drawerItemStyle: { display: 'none' } }} 
+        />
+         <Drawer.Screen name="AcceptedAppplicantProfile"
+        component={AcceptedAppplicantProfile}
+        options={{ drawerItemStyle: { display: 'none' } }} 
+        />
+         <Drawer.Screen name="SafetyScreen"
+        component={SafetyScreen}
+        options={{ drawerItemStyle: { display: 'none' } }} 
+        />
       {/* //  <Drawer.Screen name="UpdateProfile " component={UpdateProfile} />  */}
         
       <Drawer.Screen 
@@ -100,11 +210,12 @@ const AppNavigator = () => {
       {({ navigation }) => <SignUpPage navigation={navigation} />}
     </Stack.Screen>
     <Stack.Screen name="PostJob" component={PostJob} options={{ headerShown: false }} />
-    <Stack.Screen name="CategoryDetails" component={CategoryDetails} />
-    <Stack.Screen name="JobDetails" component={JobDetails} />
-    <Stack.Screen name="SignUpPage" component={SignUpPage} />
-    <Stack.Screen name="SelectLocationScreen" component={SelectLocationScreen} />
-
+    <Stack.Screen name="CategoryDetails" component={CategoryDetails} options={{ headerShown: false }} />
+    <Stack.Screen name="JobDetails" component={JobDetails} options={{ headerShown: false }} />
+    <Stack.Screen name="SignUpPage" component={SignUpPage} options={{ headerShown: false }} />
+    <Stack.Screen name="SelectLocationScreen" component={SelectLocationScreen}  options={{ headerShown: false }} />
+    <Stack.Screen name="AppliedJobs" component={AppliedJobs} />
+      <Stack.Screen name="AppliedServices" component={AppliedServices} />
     <Stack.Screen name="PostService" component={PostService} options={{ headerShown: false }} />
     <Stack.Screen name="Login">
       {() => <LoginPage onLogin={handleLogin} />}

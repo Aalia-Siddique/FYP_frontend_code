@@ -12,7 +12,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const AppliedServicesScreen = () => {
+const AppliedServices = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -225,4 +225,4 @@ circleText1: {
 },
 });
 
-export default AppliedServicesScreen;
+export default AppliedServices;

@@ -12,7 +12,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const AppliedJobsScreen = () => {
+const AppliedJobs= () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -196,4 +196,4 @@ jobTypeBadge: {
   ShareBtn: { height: 20, width: 20, tintColor: "#6ab04c" },
 });
 
-export default AppliedJobsScreen;
+export default AppliedJobs;

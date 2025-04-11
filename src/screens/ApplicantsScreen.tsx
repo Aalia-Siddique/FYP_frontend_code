@@ -13,8 +13,9 @@ import {
 import { Ionicons } from "@expo/vector-icons"; // For icons
 const defaultImage = require("../../Images/Homeimages/m1.jpeg");
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { jwtDecode } from "jwt-decode";
 interface UserJob {
   id: string;
@@ -36,11 +37,12 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
   const [selectedApplicant, setSelectedApplicant] = useState<UserJob | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation();
-  
-
-  useEffect(() => {
-    fetchApplicants();
-  }, [jobId, jobType]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchApplicants();
+      fetchAcceptedApplicants(); // ✅ every time screen comes into focus
+    }, [jobId, jobType])
+  );
 
   const fetchApplicants = async (): Promise<void> => {
     try {
@@ -64,6 +66,13 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
     }
   };
 
+  const fetchAcceptedApplicants = async () => {
+    const storedApplicants = await AsyncStorage.getItem('acceptedApplicants');
+    if (storedApplicants) {
+      setAcceptedApplicants(JSON.parse(storedApplicants));
+    }
+  };
+
   const handleAcceptApplicant = async (applicant: UserJob) => {
     try {
       const token = await AsyncStorage.getItem('jwtToken');
@@ -80,7 +89,7 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
       const userId = decodedToken.Id;
       const bodyData = jobType.toLowerCase() === "job" 
         ? { jobId, applicantId: applicant.id, userId, jobsStatus: "Accepted" } 
-        : { serviceId: jobId, applicantId: applicant.id, userId, jobsStatus: "Accepted" };
+        : { serviceId: jobId, applicantId: applicant.id, userId, serviceStatus: "Accepted" };
   
       console.log("Request body:", JSON.stringify(bodyData));
   
@@ -91,7 +100,7 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
       });
   
       const responseText = await response.text();
-      
+  
       let responseData;
       try {
         responseData = responseText ? JSON.parse(responseText) : {};
@@ -102,7 +111,15 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
       }
   
       if (response.ok) {
-        setAcceptedApplicants((prev) => [...prev, applicant.id]);
+        // Store the accepted applicant in AsyncStorage
+        const key = `${jobType}-${jobId}-${applicant.id}`;
+        const storedApplicants = await AsyncStorage.getItem('acceptedApplicants');
+        let updatedApplicants = storedApplicants ? JSON.parse(storedApplicants) : [];
+  
+        updatedApplicants.push(key);
+        await AsyncStorage.setItem('acceptedApplicants', JSON.stringify(updatedApplicants));
+  
+        setAcceptedApplicants(updatedApplicants);  // Update local state
         setSelectedApplicant(applicant);
         setModalVisible(true);
       } else {
@@ -115,6 +132,7 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
     }
   };
   
+
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -122,45 +140,67 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Applicants</Text>
+
+      <TouchableOpacity 
+        style={styles.acceptedBtn} 
+        onPress={() => navigation.navigate('AcceptedApplicants', { jobId, jobType })}
+      >
+        <Text style={styles.acceptedBtnText}>View Accepted Applicants</Text>
+      </TouchableOpacity>
+
       {applicants.length > 0 ? (
         <FlatList
           data={applicants}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.profileSection}>
-                <Image
-                  source={{ 
-                    uri: item.userImage 
-                      ? `http://192.168.100.22:5165/${item.userImage}` 
-                      : Image.resolveAssetSource(defaultImage).uri
-                  }} 
-                  style={styles.userImage}
-                  resizeMode="cover"
-                />
-                <Text style={styles.name}>{item.name}</Text>
+          renderItem={({ item }) => {
+            const isAccepted = acceptedApplicants.includes(`${jobType}-${jobId}-${item.id}`);
+            return (
+              <View style={styles.card}>
+                <View style={styles.profileSection}>
+                  <Image
+                    source={{
+                      uri: item.userImage
+                        ? `http://192.168.100.22:5165/${item.userImage}`
+                        : Image.resolveAssetSource(defaultImage).uri,
+                    }}
+                    style={styles.userImage}
+                    resizeMode="cover"
+                  />
+                  <Text style={styles.name}>{item.name}</Text>
+
+                  <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                      style={[
+                        styles.acceptButton,
+                        { backgroundColor: isAccepted ? '#4CAF50' : '#008CBA' } // Conditional color change
+                      ]}
+                      onPress={() => handleAcceptApplicant(item)}
+                      disabled={isAccepted}
+                    >
+                      <Text style={styles.acceptButtonText}>
+                        {isAccepted ? "Accepted" : "Accept"}
+                      </Text>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity
+                      style={styles.declineButton}
+                      onPress={() => alert("Decline functionality pending")}
+                    >
+                      <Text style={styles.declineButtonText}>Decline</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.viewProfileButton}
+                    onPress={() => navigation.navigate("UserProfile", { userId: item.id })}
+                  >
+                    <Text style={styles.viewProfileText}>View Profile</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-      
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity 
-                  style={styles.viewProfileButton} 
-                  onPress={() => navigation.navigate('UserProfile', { userId: item.id })}
-                >
-                  <Text style={styles.viewProfileText}>View Profile</Text>
-                </TouchableOpacity>
-      
-                <TouchableOpacity
-                  style={acceptedApplicants.includes(item.id) ? styles.acceptedButton : styles.acceptButton}
-                  onPress={() => handleAcceptApplicant(item)}
-                  disabled={acceptedApplicants.includes(item.id)}
-                >
-                  <Text style={styles.acceptButtonText}>
-                    {acceptedApplicants.includes(item.id) ? "Accepted" : "Accept"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
+            );
+          }}
         />
       ) : (
         <Text style={styles.noApplicants}>No Applicants Found</Text>
@@ -170,28 +210,21 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            
-            {/* Close Button on Top Right */}
             <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
 
-            {/* Title with Checkmark Icon */}
             <View style={styles.titleContainer}>
               <Ionicons name="checkmark-circle" size={24} color="green" />
               <Text style={styles.modalTitle}>Application Accepted</Text>
             </View>
 
-            {/* Message */}
             <Text style={styles.modalText}>
               You have accepted {selectedApplicant?.name}'s application. 
               You can contact them via chat or call at {selectedApplicant?.phoneNumber}.
             </Text>
 
-            {/* Buttons */}
             <View style={styles.modalButtonContainer}>
-              
-              {/* Start Chat Button with Chat Icon */}
               <TouchableOpacity 
                 style={styles.modalButton} 
                 onPress={() => navigation.navigate("ChatScreen", { userId: selectedApplicant?.id })}
@@ -199,7 +232,6 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
                 <Ionicons name="chatbubble" size={16} color="white" />
                 <Text style={styles.modalButtonText}> Start Chat</Text>
               </TouchableOpacity>
-
             </View>
           </View>
         </View>
@@ -208,8 +240,10 @@ const ApplicantsScreen: React.FC<{ route: { params: { jobId: number; jobType: st
   );
 };
 
+
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" ,marginTop:30},
   heading: { fontSize: 22, fontWeight: "bold", marginBottom: 15, textAlign: "center" },
 
   card: {
@@ -226,7 +260,18 @@ const styles = StyleSheet.create({
     elevation: 5,
     justifyContent: "space-between",
   },
-
+  acceptedBtn: {
+    backgroundColor: "#4CAF50", // Green color
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  acceptedBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   profileSection: {
     flexDirection: "column",
     alignItems: "center",
@@ -251,20 +296,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+ 
   viewProfileButton: {
-    backgroundColor: "#EAF1FF",
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginRight: 5,
+    backgroundColor: "#1E90FF",  // Solid blue color for the background
+    borderRadius: 25,  // Rounded corners
+    paddingVertical: 10,  // Adequate vertical padding
+    paddingHorizontal: 20,  // Adequate horizontal padding
+    marginTop: 20,  // Slightly increased top margin
+    width: 220,  // A comfortable button width
+    alignItems: 'center',  // Center the text horizontally
+    justifyContent: 'center',  // Center the text vertically
   },
-
+  
   viewProfileText: {
-    color: "#007BFF",
-    fontSize: 14,
+    fontSize: 13,  // Slightly larger font size for readability
     fontWeight: "bold",
+    color: "#fff",  // White text for contrast
+    textAlign: 'center',  // Center the text inside the button
+    textTransform: 'uppercase',  // Optional: Make text uppercase for a more modern look
   },
-
+  
   acceptButton: {
     backgroundColor: "#007BFF",
     borderRadius: 20,
@@ -344,7 +395,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 5,
   },
-
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  
+  declineButton: {
+    backgroundColor: "#dc3545",
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginLeft: 10,
+  },
+  
+  declineButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  
 });
 
 export default ApplicantsScreen;

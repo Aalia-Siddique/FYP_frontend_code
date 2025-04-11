@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { 
+  View, Text, TextInput, FlatList, Image, TouchableOpacity, 
+  StyleSheet, ActivityIndicator
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
 import { useNavigation } from '@react-navigation/native';
+import { Picker } from "@react-native-picker/picker";
+
 const AllUsers = () => {
   const [searchText, setSearchText] = useState("");
   const [applicants, setApplicants] = useState([]);
   const [filteredApplicants, setFilteredApplicants] = useState([]);
   const [loading, setLoading] = useState(false);
-const navigation = useNavigation();
+  const [selectedDistance, setSelectedDistance] = useState("5"); // Default: 5km
+  const navigation = useNavigation();
+
   // API Call Function
-  const fetchApplicants = async (query) => {
+  const fetchApplicants = async (query, distance) => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('jwtToken');
@@ -20,22 +27,25 @@ const navigation = useNavigation();
         setLoading(false);
         return;
       }
-  
+      console.log(query,distance);
       const decodedToken = jwtDecode(token);
       const userId = decodedToken.Id;
-      const response = await fetch(`http://192.168.100.22:5191/api/location/GetUsersFromJob/${query}/${userId}`);
-      
+
+      // API call with distance filter
+      const response = await fetch(`http://192.168.100.22:5191/api/location/GetUsersFromJob/${query}/${userId}?MaxDistance=${distance}`);
+
       console.log("Query:", query);
       console.log("User ID:", userId);
-      
+      console.log("Selected Distance:", distance);
+
       if (!response.ok) {
         throw new Error("Failed to fetch applicants");
       }
-  
+
       const data = await response.json();
       setApplicants(data.$values || []);
       setFilteredApplicants(data.$values || []);
-      
+
       console.log(data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -43,10 +53,10 @@ const navigation = useNavigation();
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
-    fetchApplicants(""); // Load all data initially
-  }, []);
+    fetchApplicants("", selectedDistance); // Load all data initially
+  }, [selectedDistance]);
 
   return (
     <View style={styles.container}>
@@ -57,12 +67,28 @@ const navigation = useNavigation();
           style={styles.searchInput}
           placeholder="Search"
           value={searchText}
-          onChangeText={(text) => setSearchText(text)} 
+          onChangeText={(text) => setSearchText(text)}
         />
       </View>
 
+      {/* Distance Filter */}
+      <View style={styles.filterContainer}>
+  <Text style={styles.filterLabel}>Filter by Distance:</Text>
+  <Picker
+    selectedValue={selectedDistance}
+    style={styles.picker}
+    onValueChange={(itemValue) => setSelectedDistance(itemValue)}
+  >
+    <Picker.Item label="1 km" value="1" />
+    <Picker.Item label="2 km" value="2" />
+    <Picker.Item label="5 km" value="5" />
+    <Picker.Item label="10 km" value="10" />
+  </Picker>
+  <Text style={styles.selectedDistanceText}>{selectedDistance} km</Text> 
+</View>
+
       {/* Search Button */}
-      <TouchableOpacity style={styles.searchButton} onPress={() => fetchApplicants(searchText)}>
+      <TouchableOpacity style={styles.searchButton} onPress={() => fetchApplicants(searchText, selectedDistance)}>
         <Text style={styles.searchButtonText}>Search</Text>
       </TouchableOpacity>
 
@@ -81,15 +107,17 @@ const navigation = useNavigation();
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Image 
-              source={{ uri: `http://192.168.100.22:5165${item.userImage}` }} 
+              source={{ uri: `http://192.168.100.22:5165/${item.userImage}` }} 
               style={styles.image} 
             />         
             <View style={styles.details}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.phone}>{item.phoneNumber}</Text>
             </View>
-            <TouchableOpacity style={styles.button}
-            onPress={() => navigation.navigate('UserProfile1', { userId: item.id })}>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => navigation.navigate('UserProfile1', { userId: item.id })}
+            >
               <Text style={styles.buttonText}>View Profile</Text>
             </TouchableOpacity>
           </View>
@@ -100,7 +128,7 @@ const navigation = useNavigation();
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
+  container: { flex: 1, backgroundColor: "#fff", padding: 20,marginTop:25},
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -111,6 +139,20 @@ const styles = StyleSheet.create({
   },
   searchIcon: { marginRight: 10 },
   searchInput: { flex: 1, height: 40 },
+
+  filterContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    paddingVertical: 5,
+  },
+  filterLabel: { fontSize: 16, fontWeight: "bold" },
+  picker: { flex: 1, height: 40 },
+
   searchButton: {
     backgroundColor: "green",
     paddingVertical: 10,
@@ -119,6 +161,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   searchButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -148,6 +191,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "red",
     marginTop: 20,
+  },
+  selectedDistanceText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "green",
+    marginLeft: 10,
   },
 });
 

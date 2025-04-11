@@ -8,7 +8,7 @@ type RootStackParamList = {
   SignUpPage: { latitude: number; longitude: number };
 };
 
-const SelectLocationScreen: React.FC = () => {
+const updateLocation: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, "SignUpPage">>();
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -18,18 +18,39 @@ const SelectLocationScreen: React.FC = () => {
     setSelectedLocation({ latitude, longitude });
   };
 
-  const saveLocation = () => {
+  const saveLocation = async () => {
     if (!selectedLocation) {
       Alert.alert("Error", "Please select a location first.");
       return;
     }
-    console.log("Saving selected location:", selectedLocation);
+    
+    // Send API request to update location in backend
+    try {
+      const response = await fetch("http://192.168.100.22:5191/api/location/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: "123", // Pass user ID dynamically
+          latitude: selectedLocation.latitude,
+          longitude: selectedLocation.longitude,
+        }),
+      });
 
-    // ✅ Correct way to send location data
-    navigation.navigate("SignUpPage", {
-      latitude: selectedLocation.latitude,
-      longitude: selectedLocation.longitude,
-    });
+      if (response.ok) {
+        const result = await response.json();
+        Alert.alert("Success", "Location updated successfully!");
+        
+        console.log("Location Updated:", result);
+        navigation.goBack();
+      } else {
+        Alert.alert("Error", "Failed to update location.");
+      }
+    } catch (error) {
+      console.error("Error updating location:", error);
+      Alert.alert("Error", "Failed to update location.");
+    }
   };
 
   return (
@@ -47,9 +68,9 @@ const SelectLocationScreen: React.FC = () => {
         {selectedLocation && <Marker coordinate={selectedLocation} title="Selected Location" />}
       </MapView>
 
-      <Button title="Confirm Location" onPress={saveLocation} />
+      <Button title="update Location" onPress={saveLocation} />
     </View>
   );
 };
 
-export default SelectLocationScreen;
+export default updateLocation;

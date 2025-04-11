@@ -12,7 +12,7 @@ type RootStackParamList = {
 
 type MeScreenProp = StackScreenProps<RootStackParamList, 'Me'>;
 
-const API_BASE_URL = 'http://192.168.100.22:5165/api';
+const API_BASE_URL ='http://192.168.100.22:5165/api';
 
 const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
   const { userData } = route.params || { userData: {} };
@@ -186,7 +186,21 @@ setUserId(Id);
           </View>
     
           {/* View Comments Button */}
-          <Button title="Update Profile" onPress={() => navigation.navigate('UpdateProfile', { userData: data })} />
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 8 }}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("UpdateProfile", { userData: data })}
+      >
+        <Text style={styles.buttonText}>Update Profile</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, styles.buttonSecondary]} // Adding a secondary style for the second button
+        onPress={() => navigation.navigate("updateLocation")}
+      >
+        <Text style={styles.buttonText}>Update Your Location</Text>
+      </TouchableOpacity>
+    </View>
         </ScrollView>
       );
     };
@@ -240,6 +254,25 @@ setUserId(Id);
       },
       activeTabText: {
         color: "#007bff", // Active text color
+      },
+      button: {
+        backgroundColor: "#3498db", // Primary button color
+        paddingVertical: 10, // Reduced vertical padding
+        paddingHorizontal: 30, // Reduced horizontal padding
+        borderRadius: 15, // Smaller radius for more compact appearance
+        marginBottom: 10, // Space between buttons
+        alignItems: "center",
+        justifyContent: "center",
+        width: "70%", // Smaller button width
+      },
+      buttonSecondary: {
+        backgroundColor: "#2ecc71", 
+        width:'80%'// Secondary button color
+      },
+      buttonText: {
+        color: "#fff",
+        fontSize: 16, // Slightly smaller text
+        fontWeight: "bold",
       },
       // detailsContainer: {
       //   marginTop: 10,

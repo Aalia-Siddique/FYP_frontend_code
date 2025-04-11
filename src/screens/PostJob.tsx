@@ -669,6 +669,8 @@ const style = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D9F6DD',
+    margin:10,
+    marginTop:17
   },
   topHeader: {
     width: '90%',
