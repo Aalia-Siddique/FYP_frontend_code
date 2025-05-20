@@ -49,6 +49,7 @@ const Tab = () => {
           tabBarStyle: {
             backgroundColor: "#ffffff",
             height: isKeyboardVisible ? 0 : 50,
+            paddingBottom: 80,  
           },
         }}
       >

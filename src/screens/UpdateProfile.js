@@ -163,6 +163,7 @@ const UpdateProfile = ({ route, navigation }) => {
     </View>
   ))}
 
+
   <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
     <Text style={styles.updateButtonText}>Save Changes</Text>
   </TouchableOpacity>
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   image: { width: 100, height: 100, borderRadius: 10, marginTop: 10 },
   imagePicker: { backgroundColor: '#007BFF', padding: 10, borderRadius: 5, marginTop: 5, alignItems: 'center' },
   imagePickerText: { color: '#fff', fontSize: 16 },
-  updateButton: { backgroundColor: '#4CAF50', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 20 },
+  updateButton: { backgroundColor: '#4CAF50', padding: 15, borderRadius: 10, alignItems: 'center',  marginBottom: 30},
   updateButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
 });
 
