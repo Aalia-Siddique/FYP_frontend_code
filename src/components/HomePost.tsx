@@ -37,8 +37,8 @@ const toggleMenu = (index: number) => {
                         const userId = decodedToken.Id;
                         setUserId(userId);
                 const [servicesResponse, jobsResponse] = await Promise.all([
-                    axios.get('http://192.168.100.22:5140/api/JobPost'),
-                    axios.get('http://192.168.100.22:5140/api/ServicePost')
+                    axios.get('http://192.168.0.106:5140/api/JobPost'),
+                    axios.get('http://192.168.0.106:5140/api/ServicePost')
                 ]);
 
                 setServicePosts(servicesResponse.data.$values || []);
@@ -72,7 +72,7 @@ const toggleMenu = (index: number) => {
               onPress: async () => {
                 console.log('Deleting post with ID:', postId);  // Debugging line
                 try {
-                  const response = await axios.delete(`http://192.168.100.22:5140/api/JobPost/${postId}`);
+                  const response = await axios.delete(`http://192.168.0.106:5140/api/JobPost/${postId}`);
                   console.log('Delete Response:', response);  // Check the response
       
                   if (response.status === 204) {
@@ -115,7 +115,7 @@ const toggleMenu = (index: number) => {
               onPress: async () => {
                 console.log('Deleting service post with ID:', servicePostId);  // Debugging line
                 try {
-                  const response = await axios.delete(`http://192.168.100.22:5140/api/ServicePost/${servicePostId}`);
+                  const response = await axios.delete(`http://192.168.0.106:5140/api/ServicePost/${servicePostId}`);
                   console.log('Delete Response:', response);  // Check the response
       
                   if (response.status === 204) {
@@ -167,7 +167,7 @@ const toggleMenu = (index: number) => {
                         jobPosts.map((jobPost, index) => (
                             <View key={`job-${index}`} style={styles.postContainer}>
                                 <View style={styles.header}>
-                                    <Image source={{ uri: `http://192.168.100.22:5165/${jobPost.userImage}` }} resizeMode="cover" style={styles.Postimage} />
+                                    <Image source={{ uri: `http://192.168.0.106:5165/${jobPost.userImage}` }} resizeMode="cover" style={styles.Postimage} />
                                     <View style={styles.jobtitleDifference}>
                                         <Text style={styles.Jobtitle}>{jobPost.name}</Text>
    {jobPost.userId === userId ? (
@@ -232,7 +232,7 @@ const toggleMenu = (index: number) => {
                       <View key={`service-${index}`} style={styles.postContainer}>
                         <View style={styles.header}>
                           <Image 
-                            source={{ uri: `http://192.168.100.22:5165/${servicePost.userImage}` }} 
+                            source={{ uri: `http://192.168.0.106:5165/${servicePost.userImage}` }} 
                             resizeMode="cover" 
                             style={styles.Postimage} 
                             cache="reload"

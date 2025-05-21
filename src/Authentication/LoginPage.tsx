@@ -45,7 +45,7 @@ const fetchData = async (authToken: string) => {
     console.error('Error fetching user data:', error);
   }
 };
-const API_BASE_URL = 'http://192.168.100.22:5165/api';
+const API_BASE_URL = 'http://192.168.0.106:5165/api';
 type NavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
  
