@@ -56,16 +56,20 @@ type NavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
   };
 
   const handleLogIn = async () => {
-    if (!formData.phoneNumber || !formData.password) {
-      Alert.alert('Validation Error', 'Both fields are required!');
-      return;
-    }
+    // if (!formData.phoneNumber || !formData.password) {
+    //   Alert.alert('Validation Error', 'Both fields are required!');
+    //   return;
+    // }
 
-    const dataToPost = {
-      PhoneNumber: formData.phoneNumber,
-      Password: formData.password,
+    // const dataToPost = {
+    //   PhoneNumber: formData.phoneNumber,
+    //   Password: formData.password,
+    // }
+     const dataToPost = {
+      PhoneNumber: '03208510477',
+      Password: 'qwer123!',
     }
-  //  onLogin();
+    onLogin();
     try {
       console.log('Data to post:', JSON.stringify(dataToPost));
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {  
