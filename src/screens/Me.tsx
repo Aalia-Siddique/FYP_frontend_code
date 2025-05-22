@@ -3,6 +3,9 @@ import { View, Text, Button, ScrollView, StyleSheet, Image,TouchableOpacity,Link
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { StackScreenProps } from '@react-navigation/stack';
+
+import { useLanguage } from '../screens/LanguageContext';
+import LanguageSwitcher from '../screens/LanguageSwitcher';
 import { useFocusEffect } from '@react-navigation/native'; 
 import { jwtDecode } from "jwt-decode";
 type RootStackParamList = {
@@ -12,13 +15,14 @@ type RootStackParamList = {
 
 type MeScreenProp = StackScreenProps<RootStackParamList, 'Me'>;
 
-const API_BASE_URL ='http://192.168.100.22:5165/api';
+const API_BASE_URL ='http://192.168.0.106:5165/api';
 
 const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
   const { userData } = route.params || { userData: {} };
   const [activeTab, setActiveTab] = useState("JobsScreen");
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState("Jobs");
+    const { lang } = useLanguage();
   const [data, setData] = useState({
     Name: '',
     PhoneNumber: '',
@@ -54,7 +58,7 @@ const Me: React.FC<MeScreenProp> = ({ navigation, route }) => {
 console.log(decodedToken)
 console.log(Id)
 setUserId(Id);
-      const response = await axios.get(`${API_BASE_URL}/Users/GetUsersById/${Id}`, {
+      const response = await axios.get(`${API_BASE_URL}/Users/GetUsersById/${Id}?${lang}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -92,7 +96,7 @@ setUserId(Id);
   return (
     <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.profileHeader}>
-            <Image source={{ uri: `http://192.168.100.22:5165/${data.UserImageName}` }} style={styles.userImage} />
+            <Image source={{ uri: `http://192.168.0.106:5165/${data.UserImageName}` }} style={styles.userImage} />
             <Text style={styles.name}>{data.Name}</Text>
             <Text style={styles.job}>{data.Job}</Text>
             <Text style={styles.city}>{data.City}</Text>
@@ -169,17 +173,17 @@ setUserId(Id);
     
           <View style={styles.detailsContainer}>
             <Text style={styles.sectionTitle}>CNIC Image</Text>
-            <Image source={{ uri: `http://192.168.100.22:5165/${data.CnicImageName}` }} style={styles.extraImage1} />
+            <Image source={{ uri: `http://192.168.0.106:5165/${data.CnicImageName}` }} style={styles.extraImage1} />
           </View>
     
           <View style={styles.detailsContainer}>
             <Text style={styles.sectionTitle}>License and Certificate</Text>
-            <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.100.22:5165/${data.CertificateImageName}`)}>
-              <Image source={{ uri: `http://192.168.100.22:5165/${data.CertificateImageName}` }} style={styles.extraImage} />
+            <TouchableOpacity onPress={() => Linking.openURL(`http://192.168.0.106:5165/${data.CertificateImageName}`)}>
+              <Image source={{ uri: `http://192.168.0.106:5165/${data.CertificateImageName}` }} style={styles.extraImage} />
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.downloadButton} 
-              onPress={() => Linking.openURL(`http://192.168.100.22:5165/${data.CertificateImageName}`)}
+              onPress={() => Linking.openURL(`http://192.168.0.106:5165/${data.CertificateImageName}`)}
             >
               <Text style={styles.downloadButtonText}>Download Certificate</Text>
             </TouchableOpacity>

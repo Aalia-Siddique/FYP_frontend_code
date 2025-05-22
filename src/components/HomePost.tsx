@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView ,Alert} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import { useLanguage } from '../screens/LanguageContext';
+import LanguageSwitcher from '../screens/LanguageSwitcher';
 import { jwtDecode } from "jwt-decode";
 import { useNavigation } from '@react-navigation/native';
 const HomePost = () => {
   const navigation=useNavigation();
+  const { lang } = useLanguage();
+  const [jobs, setJobs] = useState([]);
     const [servicePosts, setServicePosts] = useState([]);
     const [jobPosts, setJobPosts] = useState([]);
     const [activeTab, setActiveTab] = useState('jobs'); // Default tab is 'jobs'
@@ -23,34 +25,34 @@ const toggleMenu = (index: number) => {
 };
 
 
-
-    useEffect(() => {
-        const fetchPosts = async () => {
-            
-            try {
-                  const token = await AsyncStorage.getItem('jwtToken');
-                      if (!token) {
-                        console.error('User token not found.');
-                        return;
-                      }
-                        const decodedToken: any = jwtDecode(token);
-                        const userId = decodedToken.Id;
-                        setUserId(userId);
-                const [servicesResponse, jobsResponse] = await Promise.all([
-                    axios.get('http://192.168.0.106:5140/api/JobPost'),
-                    axios.get('http://192.168.0.106:5140/api/ServicePost')
-                ]);
-
-                setServicePosts(servicesResponse.data.$values || []);
-                console.log(servicePosts);
-                setJobPosts(jobsResponse.data.$values || []);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+useEffect(() => {
+    const fetchPosts = async () => {
+        try {
+            const token = await AsyncStorage.getItem('jwtToken');
+            if (!token) {
+                console.error('User token not found.');
+                return;
             }
-        };
+            const decodedToken: any = jwtDecode(token);
+            const userId = decodedToken.Id;
+            setUserId(userId);
 
-        fetchPosts();
-    }, []);
+            const [jobsResponse, servicesResponse] = await Promise.all([
+                axios.get(`http://192.168.0.106:5140/api/JobPost?lang=${lang}`),
+                axios.get(`http://192.168.0.106:5140/api/ServicePost?lang=${lang}`)
+            ]);
+
+            setJobPosts(jobsResponse.data.$values || []);
+            setServicePosts(servicesResponse.data.$values || []);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    fetchPosts();
+}, [lang]);
+
+
  
 
     const formatDate = (utcDate) => {
@@ -147,6 +149,8 @@ const toggleMenu = (index: number) => {
         <View style={styles.container}>
             {/* Tabs */}
             <View style={styles.tabContainer}>
+              <LanguageSwitcher />
+
                 <TouchableOpacity 
                     style={[styles.tabButton, activeTab === 'jobs' && styles.activeTab]} 
                     onPress={() => setActiveTab('jobs')}

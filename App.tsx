@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState } from 'react';
-
+import { LanguageProvider } from './src/screens/LanguageContext';
 import { View,StyleSheet, TextInput,Text,TouchableOpacity, Image,ScrollView} from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 
@@ -47,7 +47,10 @@ const Headers = () => {
 };
 const App = () => {
   return (
+  <LanguageProvider>
+
     <AppNavigator/>
+  </LanguageProvider>
   );
 };
 const styles = StyleSheet.create({
